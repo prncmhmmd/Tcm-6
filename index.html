@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCM Six Stages & B Vitamin Metabolic Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink-black: #1a1a1a;
+            --rice-paper: #f7f5f0;
+            --cinnabar: #c9372c;
+            --jade: #4a7c59;
+            --sage: #8b9a7d;
+            --warm-gray: #e8e4dc;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--rice-paper);
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4cfc4' fill-opacity='0.2'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        
+        .serif-sc {
+            font-family: 'Noto Serif SC', serif;
+        }
+        
+        .stage-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid transparent;
+        }
+        
+        .stage-card.active {
+            border-left-color: var(--cinnabar);
+            background: linear-gradient(135deg, rgba(201, 55, 44, 0.05) 0%, rgba(255,255,255,0) 100%);
+            transform: translateX(8px);
+        }
+        
+        .stage-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.1);
+        }
+        
+        .checkbox-custom {
+            appearance: none;
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 2px solid #d1d5db;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+        }
+        
+        .checkbox-custom:checked {
+            background-color: var(--cinnabar);
+            border-color: var(--cinnabar);
+        }
+        
+        .checkbox-custom:checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 1rem;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .vitamin-badge {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #1a1a1a;
+            font-weight: 700;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .metabolism-box {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-left: 4px solid #059669;
+        }
+        
+        .principle-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid #d97706;
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.5s ease-in-out;
+        }
+        
+        .pulse-indicator {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+        
+        .result-panel {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: var(--rice-paper);
+        }
+        
+        .score-bar {
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .floating-label {
+            position: absolute;
+            top: -0.5rem;
+            left: 1rem;
+            background: var(--rice-paper);
+            padding: 0 0.5rem;
+            font-size: 0.75rem;
+            color: var(--cinnabar);
+            font-weight: 600;
+        }
+        
+        .yin-yang-spin {
+            animation: spin 20s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .hidden-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .visible-section {
+            display: block;
+            opacity: 1;
+        }
+        
+        .btn-primary {
+            background: var(--cinnabar);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: #a82d24;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(201, 55, 44, 0.3);
+        }
+        
+        .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .has-tooltip:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .priority-high { border-left-color: #dc2626; }
+        .priority-medium { border-left-color: #f59e0b; }
+        .priority-low { border-left-color: #6b7280; }
+        
+        .b-vitamin-card {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border: 2px solid #f59e0b;
+        }
+        
+        .treatment-principle-card {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border: 2px solid #3b82f6;
+        }
+        
+        .sequence-arrow {
+            color: #f59e0b;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-md border-b border-stone-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-stone-900 rounded-full flex items-center justify-center text-white serif-sc text-xl font-bold relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-red-600 to-black opacity-80"></div>
+                    <span class="relative z-10">医</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-stone-900 serif-sc tracking-wide">六经辨证</h1>
+                    <p class="text-xs text-stone-500 uppercase tracking-widest">Six Stages & B Vitamin Metabolic Analysis</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button onclick="resetForm()" class="text-sm text-stone-600 hover:text-red-700 transition-colors font-medium">
+                    Reset Assessment
+                </button>
+                <div class="has-tooltip relative">
+                    <button class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center transition-colors">
+                        <svg class="w-5 h-5 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </button>
+                    <div class="tooltip absolute right-0 top-10 w-80 bg-stone-900 text-white text-sm p-4 rounded-lg shadow-2xl z-50">
+                        Based on Zhang Zhong Jing's Shang Han Lun with B vitamin metabolic correlations. Treatment principles follow classical TCM priorities: Exterior before Interior, Yang before Yin, Upper before Lower.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Intro Section -->
+        <div id="intro-section" class="mb-12 text-center max-w-3xl mx-auto">
+            <h2 class="text-4xl font-bold text-stone-900 mb-4 serif-sc">Six Stages & Metabolic Analysis</h2>
+            <p class="text-lg text-stone-600 mb-8 leading-relaxed">
+                Select all symptoms that apply. The system correlates TCM stages with <span class="font-semibold text-amber-700">B vitamin metabolism</span> and provides prioritized nutritional recommendations following classical treatment principles.
+            </p>
+            
+            <div class="grid grid-cols-3 gap-4 mb-8 text-sm">
+                <div class="bg-white p-4 rounded-lg border border-stone-200 shadow-sm">
+                    <div class="font-bold text-stone-900 mb-1">Yang Stages</div>
+                    <div class="text-stone-500">Tai Yang → Yang Ming → Shao Yang</div>
+                    <div class="text-xs text-amber-600 mt-1 font-medium">B1 → B3 → B2</div>
+                </div>
+                <div class="bg-white p-4 rounded-lg border border-stone-200 shadow-sm">
+                    <div class="font-bold text-stone-900 mb-1">Yin Stages</div>
+                    <div class="text-stone-500">Tai Yin → Shao Yin → Jue Yin</div>
+                    <div class="text-xs text-amber-600 mt-1 font-medium">B5 → B9/B12 → B6</div>
+                </div>
+                <div class="bg-white p-4 rounded-lg border border-stone-200 shadow-sm">
+                    <div class="font-bold text-stone-900 mb-1">Treatment Priority</div>
+                    <div class="text-stone-500">Exterior → Interior</div>
+                    <div class="text-xs text-amber-600 mt-1 font-medium">Biao → Li</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column: Questionnaire -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Tai Yang - B1 -->
+                <div class="stage-card bg-white rounded-xl p-6 shadow-sm border border-stone-200" data-stage="taiyang">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold text-stone-900 serif-sc">Tai Yang <span class="text-lg text-stone-500 font-normal">Greater Yang</span></h3>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="vitamin-badge">B1 Thiamine</span>
+                                <span class="text-sm text-blue-700 font-medium">Exterior Defense • Glycolysis</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-bold text-stone-300" id="score-taiyang">0</div>
+                            <div class="text-xs text-stone-500 uppercase tracking-wider">Points</div>
+                        </div>
+                    </div>
+                    
+                    <div class="metabolism-box p-3 rounded-lg mb-4 text-sm">
+                        <strong>Metabolic Function:</strong> B1 (Thiamine) as TPP is essential for pyruvate dehydrogenase, linking glycolysis to TCA cycle. Critical for energy production in high-demand tissues (brain, heart, muscle).
+                    </div>
+                    
+                    <div class="principle-box p-3 rounded-lg mb-4 text-sm">
+                        <strong>Treatment Principle:</strong> Release the Exterior (解表), induce sweating. <strong>Priority 1</strong> - Always treat first if present. B1 supports defensive qi and acetylcholine synthesis for neuromuscular function.
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="3" onchange="calculateScore('taiyang')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Fever with simultaneous chills</span>
+                                <p class="text-sm text-stone-500">Exterior pathogen blocking defensive qi; metabolic surge attempting to generate heat</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">3 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('taiyang')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Stiff neck or occipital headache</span>
+                                <p class="text-sm text-stone-500">Tai Yang channel obstruction; B1 deficiency affects nerve conduction</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('taiyang')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Fatigue worse with exertion</span>
+                                <p class="text-sm text-stone-500">B1 deficiency: impaired ATP production from glucose; beriberi-like presentation</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('taiyang')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Peripheral neuropathy/tingling</span>
+                                <p class="text-sm text-stone-500">Thiamine deficiency affecting nerve conduction; dry beriberi pattern</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <div class="bg-stone-50 p-3 rounded-lg border border-stone-200 mt-2">
+                            <p class="text-sm font-semibold text-stone-700 mb-2">Sweating Status (Select one):</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="radio" name="taiyang-sweat" class="w-4 h-4 text-red-700 focus:ring-red-700" data-points="2" onchange="calculateScore('taiyang')">
+                                    <span class="text-sm"><strong>Tai Yang Wind:</strong> Sweating easily, slight aversion to wind (B1 deficiency with qi deficiency)</span>
+                                </label>
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="radio" name="taiyang-sweat" class="w-4 h-4 text-red-700 focus:ring-red-700" data-points="2" onchange="calculateScore('taiyang')">
+                                    <span class="text-sm"><strong>Tai Yang Cold:</strong> No sweating, skin tight (exterior excess blocking metabolic heat)</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('taiyang')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Floating pulse</span>
+                                <p class="text-sm text-stone-500">Qi floating to surface; B1 deficiency may show weak floating quality</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Yang Ming - B3 -->
+                <div class="stage-card bg-white rounded-xl p-6 shadow-sm border border-stone-200" data-stage="yangming">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold text-stone-900 serif-sc">Yang Ming <span class="text-lg text-stone-500 font-normal">Bright Yang</span></h3>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="vitamin-badge">B3 Niacin</span>
+                                <span class="text-sm text-orange-700 font-medium">Interior Heat • NAD+/NADP+</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-bold text-stone-300" id="score-yangming">0</div>
+                            <div class="text-xs text-stone-500 uppercase tracking-wider">Points</div>
+                        </div>
+                    </div>
+                    
+                    <div class="metabolism-box p-3 rounded-lg mb-4 text-sm">
+                        <strong>Metabolic Function:</strong> B3 (Niacin) forms NAD+/NADP+, central to cellular respiration, TCA cycle, and ATP production. The "Four Bigs" reflect intense metabolic demand and heat generation.
+                    </div>
+                    
+                    <div class="principle-box p-3 rounded-lg mb-4 text-sm">
+                        <strong>Treatment Principle:</strong> Clear Heat (清热), drain downward if necessary. <strong>Priority 2</strong> - Treat after Tai Yang if both present. B3 supports intense metabolic heat and cellular energy demands.
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="3" onchange="calculateScore('yangming')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">High fever WITHOUT chills</span>
+                                <p class="text-sm text-stone-500">Intense metabolic heat; NAD+ driven cellular respiration at maximum</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">3 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('yangming')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Profuse sweating</span>
+                                <p class="text-sm text-stone-500">Heat forcing fluids out; B3 deficiency impairs thermoregulation</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('yangming')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Extreme thirst for cold drinks</span>
+                                <p class="text-sm text-stone-500">Cellular dehydration from metabolic heat; B3 maintains cellular energy balance</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('yangming')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Big/Full/Excess pulse</span>
+                                <p class="text-sm text-stone-500">Excessive yang qi; flooding pulse indicates intense metabolic activity</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('yangming')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Constipation or abdominal distension</span>
+                                <p class="text-sm text-stone-500">Yang Ming Fu pattern; heat drying fluids; B3 deficiency affects gut motility</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('yangming')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Skin flushing or dermatitis</span>
+                                <p class="text-sm text-stone-500">B3 deficiency (pellagra): 3 D's - Dermatitis, Diarrhea, Dementia</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="1" onchange="calculateScore('yangming')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Mental restlessness/irritability</span>
+                                <p class="text-sm text-stone-500">Heat disturbing Shen; B3 deficiency affects cognitive function</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">1 pt</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Shao Yang - B2 -->
+                <div class="stage-card bg-white rounded-xl p-6 shadow-sm border border-stone-200" data-stage="shaoyang">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold text-stone-900 serif-sc">Shao Yang <span class="text-lg text-stone-500 font-normal">Lesser Yang</span></h3>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="vitamin-badge">B2 Riboflavin</span>
+                                <span class="text-sm text-yellow-700 font-medium">Half-Exterior/Half-Interior • FAD/FMN</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-bold text-stone-300" id="score-shaoyang">0</div>
+                            <div class="text-xs text-stone-500 uppercase tracking-wider">Points</div>
+                        </div>
+                    </div>
+                    
+                    <div class="metabolism-box p-3 rounded-lg mb-4 text-sm">
+                        <strong>Metabolic Function:</strong> B2 (Riboflavin) forms FAD/FMN cofactors for mitochondrial energy generation and oxidation-reduction reactions. The pivot mechanism reflects redox balance between exterior and interior.
+                    </div>
+                    
+                    <div class="principle-box p-3 rounded-lg mb-4 text-sm">
+                        <strong>Treatment Principle:</strong> Harmonize Shao Yang (和解少阳). <strong>Priority 3</strong> - Cannot use sweating or purging. B2 supports the pivot mechanism and redox balance between Biao and Li.
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="3" onchange="calculateScore('shaoyang')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Alternating chills and fever</span>
+                                <p class="text-sm text-stone-500">Redox imbalance; B2-dependent mitochondrial dysfunction causing energy fluctuations</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">3 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('shaoyang')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Bitter taste in mouth</span>
+                                <p class="text-sm text-stone-500">Gallbladder heat; B2 deficiency affects liver detoxification pathways</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('shaoyang')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Eye irritation/photophobia</span>
+                                <p class="text-sm text-stone-500">Liver opening to eyes; B2 deficiency causes photophobia, burning eyes, cataracts</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('shaoyang')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Cracked lips or angular stomatitis</span>
+                                <p class="text-sm text-stone-500">Classic B2 deficiency sign; Shaoyang pivot affecting oral mucosa</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('shaoyang')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Rib-side or hypochondriac pain/fullness</span>
+                                <p class="text-sm text-stone-500">Liver/GB channel obstruction; B2 supports liver detoxification function</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('shaoyang')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Nausea, vomiting, or poor appetite</span>
+                                <p class="text-sm text-stone-500">Shaoyang affecting middle burner; B2 deficiency impairs digestive enzyme function</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="1" onchange="calculateScore('shaoyang')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Magenta tongue or glossitis</span>
+                                <p class="text-sm text-stone-500">Characteristic B2 deficiency sign; liver heat pattern</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">1 pt</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Tai Yin - B5 -->
+                <div class="stage-card bg-white rounded-xl p-6 shadow-sm border border-stone-200" data-stage="taiyin">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold text-stone-900 serif-sc">Tai Yin <span class="text-lg text-stone-500 font-normal">Greater Yin</span></h3>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="vitamin-badge">B5 Pantothenic</span>
+                                <span class="text-sm text-cyan-700 font-medium">Interior Cold/Deficiency • Acetyl-CoA</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-bold text-stone-300" id="score-taiyin">0</div>
+                            <div class="text-xs text-stone-500 uppercase tracking-wider">Points</div>
+                        </div>
+                    </div>
+                    
+                    <div class="metabolism-box p-3 rounded-lg mb-4 text-sm">
+                        <strong>Metabolic Function:</strong> B5 (Pantothenic Acid) forms Coenzyme A, essential for acetyl-CoA synthesis. Critical for fatty acid metabolism, steroid synthesis, and adrenal function. Supports Spleen's transformation/transportation.
+                    </div>
+                    
+                    <div class="principle-box p-3 rounded-lg mb-4 text-sm">
+                        <strong>Treatment Principle:</strong> Warm the Middle (温中), strengthen Spleen Yang. <strong>Priority 4</strong> - First Yin stage to treat. B5 supports digestive fire and adrenal yang (ming men).
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="3" onchange="calculateScore('taiyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Abdominal fullness or bloating</span>
+                                <p class="text-sm text-stone-500">Spleen qi deficiency failing to transform fluids; B5 supports digestive enzyme production</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">3 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="3" onchange="calculateScore('taiyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Burning feet or heat in soles</span>
+                                <p class="text-sm text-stone-500">B5 deficiency (burning feet syndrome); Tai Yin channel affecting lower burner</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">3 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('taiyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Loose stools or diarrhea</span>
+                                <p class="text-sm text-stone-500">Spleen yang deficiency; B5 deficiency impairs fat digestion (steatorrhea)</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('taiyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">No thirst or desire for warm drinks</span>
+                                <p class="text-sm text-stone-500">Internal cold; B5 supports adrenal function and stress response</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('taiyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Extreme fatigue or weakness</span>
+                                <p class="text-sm text-stone-500">Spleen qi deficiency; B5 essential for ATP production via CoA</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('taiyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Adrenal fatigue/stress intolerance</span>
+                                <p class="text-sm text-stone-500">B5 critical for cortisol synthesis; Tai Yin deficiency affecting post-natal qi</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Shao Yin - B9/B12 -->
+                <div class="stage-card bg-white rounded-xl p-6 shadow-sm border border-stone-200" data-stage="shaoyin">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold text-stone-900 serif-sc">Shao Yin <span class="text-lg text-stone-500 font-normal">Lesser Yin</span></h3>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="vitamin-badge">B9 Folate</span>
+                                <span class="vitamin-badge">B12 Cobalamin</span>
+                                <span class="text-sm text-purple-700 font-medium">Deep Deficiency • Methylation</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-bold text-stone-300" id="score-shaoyin">0</div>
+                            <div class="text-xs text-stone-500 uppercase tracking-wider">Points</div>
+                        </div>
+                    </div>
+                    
+                    <div class="metabolism-box p-3 rounded-lg mb-4 text-sm">
+                        <strong>Metabolic Function:</strong> B9 (Folate) & B12 (Cobalamin) drive methylation cycles, DNA synthesis, and red blood cell formation. Critical for Heart-Kidney axis, neurological function, and essence (jing) preservation.
+                    </div>
+                    
+                    <div class="principle-box p-3 rounded-lg mb-4 text-sm">
+                        <strong>Treatment Principle:</strong> Rescue Yang (回阳) or Nourish Yin (滋阴). <strong>Priority 5</strong> - Deep deficiency requires careful tonification. B9/B12 support blood and essence production. Avoid sweating/purging.
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="3" onchange="calculateScore('shaoyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Cold limbs (reversible or persistent)</span>
+                                <p class="text-sm text-stone-500">Heart-Kidney yang deficiency; B12 deficiency causing peripheral vascular dysfunction</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">3 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="3" onchange="calculateScore('shaoyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Pale tongue or glossitis</span>
+                                <p class="text-sm text-stone-500">Blood deficiency; B9/B12 deficiency causing megaloblastic anemia, beefy red tongue</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">3 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('shaoyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Extreme fatigue or desire to sleep</span>
+                                <p class="text-sm text-stone-500">Kidney yang deficiency; B12 deficiency causing pernicious anemia fatigue</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('shaoyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Memory loss or cognitive decline</span>
+                                <p class="text-sm text-stone-500">Kidney essence deficiency affecting brain; B12 critical for neurological function</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('shaoyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Peripheral neuropathy (numbness/tingling)</span>
+                                <p class="text-sm text-stone-500">B12 deficiency affecting myelin sheath; Kidney jing deficiency pattern</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <div class="bg-stone-50 p-3 rounded-lg border border-stone-200 mt-2">
+                            <p class="text-sm font-semibold text-stone-700 mb-2">OR Heat Pattern (Shao Yin Heat):</p>
+                            <div class="space-y-2">
+                                <label class="flex items-start space-x-3 cursor-pointer">
+                                    <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('shaoyin')">
+                                    <span class="text-sm">Insomnia with mental restlessness (Heart yin deficiency; B9/B12 affecting neurotransmitters)</span>
+                                </label>
+                                <label class="flex items-start space-x-3 cursor-pointer">
+                                    <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('shaoyin')">
+                                    <span class="text-sm">Dry mouth/throat with desire to drink (Kidney yin deficiency; methylation affecting fluid metabolism)</span>
+                                </label>
+                                <label class="flex items-start space-x-3 cursor-pointer">
+                                    <input type="checkbox" class="checkbox-custom mt-1" data-points="1" onchange="calculateScore('shaoyin')">
+                                    <span class="text-sm">Dark/scanty urine</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Jue Yin - B6 -->
+                <div class="stage-card bg-white rounded-xl p-6 shadow-sm border border-stone-200" data-stage="jueyin">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold text-stone-900 serif-sc">Jue Yin <span class="text-lg text-stone-500 font-normal">Terminal Yin</span></h3>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="vitamin-badge">B6 Pyridoxine</span>
+                                <span class="text-sm text-indigo-700 font-medium">Mixed Heat/Cold • Transamination</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-bold text-stone-300" id="score-jueyin">0</div>
+                            <div class="text-xs text-stone-500 uppercase tracking-wider">Points</div>
+                        </div>
+                    </div>
+                    
+                    <div class="metabolism-box p-3 rounded-lg mb-4 text-sm">
+                        <strong>Metabolic Function:</strong> B6 (Pyridoxine) as PLP is essential for amino acid metabolism, neurotransmitter synthesis (serotonin, dopamine, GABA), and glycogen phosphorylase. Regulates the complex mixed patterns of terminal stage.
+                    </div>
+                    
+                    <div class="principle-box p-3 rounded-lg mb-4 text-sm">
+                        <strong>Treatment Principle:</strong> Clear Upper Heat, Warm Lower Cold (清上温下). <strong>Priority 6</strong> - Final stage requiring complex balancing. B6 regulates neurotransmitter balance and mixed metabolic states.
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="3" onchange="calculateScore('jueyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Heat in chest/upper body with cold limbs</span>
+                                <p class="text-sm text-stone-500">Upper heat, lower cold pattern; B6 regulates neurotransmitter balance (upper/lower)</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">3 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="3" onchange="calculateScore('jueyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Hungry but no desire to eat / vomit after eating</span>
+                                <p class="text-sm text-stone-500">Stomach heat with spleen cold; B6 deficiency causes nausea, affects appetite regulation</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">3 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('jueyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Mood swings, irritability, or depression</span>
+                                <p class="text-sm text-stone-500">Liver qi stagnation affecting Shen; B6 critical for serotonin/dopamine synthesis</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('jueyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Thirst but drinking doesn't satisfy</span>
+                                <p class="text-sm text-stone-500">Heat consuming fluids but cold preventing absorption; B6 affects fluid balance</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('jueyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Continuous diarrhea or IBS pattern</span>
+                                <p class="text-sm text-stone-500">Liver overacting on Spleen; B6 deficiency affects gut motility and neurotransmitter signaling</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('jueyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Seborrheic dermatitis or skin rashes</span>
+                                <p class="text-sm text-stone-500">Liver heat manifesting on skin; B6 deficiency causes dermatitis, cheilitis</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Results Panel -->
+            <div class="lg:col-span-1">
+                <div class="sticky top-24 space-y-6">
+                    
+                    <!-- Live Score Card -->
+                    <div class="result-panel rounded-2xl p-6 shadow-2xl">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-xl font-bold serif-sc">Diagnostic Analysis</h3>
+                            <div class="w-8 h-8 rounded-full border-2 border-white/20 flex items-center justify-center yin-yang-spin">
+                                <div class="w-4 h-4 bg-white rounded-full"></div>
+                            </div>
+                        </div>
+
+                        <div id="empty-state" class="text-center py-8 text-white/60">
+                            <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                            </svg>
+                            <p class="text-sm">Select symptoms to begin analysis</p>
+                        </div>
+
+                        <div id="results-content" class="hidden-section">
+                            <div class="mb-6">
+                                <div class="text-sm text-white/60 mb-2 uppercase tracking-wider">Primary Stage</div>
+                                <div id="primary-stage" class="text-3xl font-bold text-white serif-sc mb-1">--</div>
+                                <div id="primary-subtitle" class="text-sm text-red-400 font-medium">--</div>
+                            </div>
+
+                            <div class="space-y-3 mb-6">
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-white/80">Confidence Score</span>
+                                    <span id="confidence-score" class="font-bold text-white">0%</span>
+                                </div>
+                                <div class="w-full bg-white/10 rounded-full h-2">
+                                    <div id="confidence-bar" class="bg-gradient-to-r from-red-500 to-orange-400 h-2 rounded-full score-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2 mb-6">
+                                <div class="text-xs text-white/40 uppercase tracking-wider mb-2">Stage Distribution</div>
+                                
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs w-16 text-white/60">Tai Yang</span>
+                                    <div class="flex-1 bg-white/10 rounded-full h-1.5">
+                                        <div id="bar-taiyang" class="bg-blue-400 h-1.5 rounded-full score-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span id="pct-taiyang" class="text-xs w-8 text-right text-white/60">0%</span>
+                                </div>
+                                
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs w-16 text-white/60">Yang Ming</span>
+                                    <div class="flex-1 bg-white/10 rounded-full h-1.5">
+                                        <div id="bar-yangming" class="bg-orange-400 h-1.5 rounded-full score-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span id="pct-yangming" class="text-xs w-8 text-right text-white/60">0%</span>
+                                </div>
+                                
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs w-16 text-white/60">Shao Yang</span>
+                                    <div class="flex-1 bg-white/10 rounded-full h-1.5">
+                                        <div id="bar-shaoyang" class="bg-yellow-400 h-1.5 rounded-full score-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span id="pct-shaoyang" class="text-xs w-8 text-right text-white/60">0%</span>
+                                </div>
+                                
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs w-16 text-white/60">Tai Yin</span>
+                                    <div class="flex-1 bg-white/10 rounded-full h-1.5">
+                                        <div id="bar-taiyin" class="bg-cyan-400 h-1.5 rounded-full score-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span id="pct-taiyin" class="text-xs w-8 text-right text-white/60">0%</span>
+                                </div>
+                                
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs w-16 text-white/60">Shao Yin</span>
+                                    <div class="flex-1 bg-white/10 rounded-full h-1.5">
+                                        <div id="bar-shaoyin" class="bg-purple-400 h-1.5 rounded-full score-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span id="pct-shaoyin" class="text-xs w-8 text-right text-white/60">0%</span>
+                                </div>
+                                
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs w-16 text-white/60">Jue Yin</span>
+                                    <div class="flex-1 bg-white/10 rounded-full h-1.5">
+                                        <div id="bar-jueyin" class="bg-indigo-400 h-1.5 rounded-full score-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span id="pct-jueyin" class="text-xs w-8 text-right text-white/60">0%</span>
+                                </div>
+                            </div>
+
+                            <div id="recommendation-box" class="bg-white/5 rounded-lg p-4 border border-white/10">
+                                <div class="text-xs text-white/40 uppercase tracking-wider mb-2">Clinical Pattern</div>
+                                <p id="pattern-description" class="text-sm text-white/90 leading-relaxed">
+                                    Select symptoms to generate pattern analysis.
+                                </p>
+                            </div>
+                        </div>
+
+                        <button onclick="generateReport()" class="w-full mt-6 bg-white text-stone-900 font-semibold py-3 rounded-lg hover:bg-stone-100 transition-colors flex items-center justify-center space-x-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <span>Generate Full Report</span>
+                        </button>
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
+                        <h4 class="font-bold text-stone-900 mb-4 text-sm uppercase tracking-wider">B Vitamin Guide</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-center justify-between">
+                                <span class="text-stone-600">Tai Yang</span>
+                                <span class="font-bold text-amber-600">B1 Thiamine</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-stone-600">Yang Ming</span>
+                                <span class="font-bold text-amber-600">B3 Niacin</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-stone-600">Shao Yang</span>
+                                <span class="font-bold text-amber-600">B2 Riboflavin</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-stone-600">Tai Yin</span>
+                                <span class="font-bold text-amber-600">B5 Pantothenic</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-stone-600">Shao Yin</span>
+                                <span class="font-bold text-amber-600">B9 + B12</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-stone-600">Jue Yin</span>
+                                <span class="font-bold text-amber-600">B6 Pyridoxine</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Report Modal -->
+    <div id="report-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div class="p-6 border-b border-stone-200 flex items-center justify-between sticky top-0 bg-white">
+                <h3 class="text-2xl font-bold serif-sc text-stone-900">Diagnostic Report & Treatment Protocol</h3>
+                <button onclick="closeReport()" class="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center transition-colors">
+                    <svg class="w-5 h-5 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6 space-y-6" id="report-content">
+                <!-- Content generated by JS -->
+            </div>
+            <div class="p-6 border-t border-stone-200 bg-stone-50 flex justify-end space-x-3">
+                <button onclick="closeReport()" class="px-4 py-2 text-stone-600 hover:text-stone-900 font-medium">Close</button>
+                <button onclick="window.print()" class="px-4 py-2 bg-stone-900 text-white rounded-lg hover:bg-stone-800 font-medium">Print Report</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Stage configurations with B vitamin correlations and treatment principles
+        const stageConfig = {
+            taiyang: {
+                name: 'Tai Yang',
+                subtitle: 'Greater Yang - Exterior Stage',
+                vitamin: 'B1 (Thiamine)',
+                vitaminColor: 'blue',
+                maxScore: 13,
+                color: 'blue',
+                priority: 1,
+                principle: 'Release the Exterior (解表)',
+                description: 'Pathogen at the surface level. Defense Qi is engaged. B1 (Thiamine) as TPP is critical for pyruvate dehydrogenase, linking glycolysis to TCA cycle.',
+                metabolicFunction: 'Energy production, nerve conduction, acetylcholine synthesis',
+                deficiencySigns: 'Fatigue, neuropathy, beriberi, Wernicke-Korsakoff syndrome',
+                herbs: 'Ma Huang Tang (Ephedra Decoction) for cold pattern, Gui Zhi Tang (Cinnamon Twig Decoction) for wind pattern',
+                points: 'GB20, LI4, LU7, BL12',
+                foods: 'Pork, sunflower seeds, beans, whole grains, nutritional yeast',
+                treatmentOrder: 'FIRST - Always treat exterior first if present'
+            },
+            yangming: {
+                name: 'Yang Ming',
+                subtitle: 'Bright Yang - Interior Heat',
+                vitamin: 'B3 (Niacin)',
+                vitaminColor: 'orange',
+                maxScore: 14,
+                color: 'orange',
+                priority: 2,
+                principle: 'Clear Heat (清热)',
+                description: 'Pathogen transformed into interior heat. B3 (Niacin) forms NAD+/NADP+ for cellular respiration. The "Four Bigs" reflect maximum metabolic demand.',
+                metabolicFunction: 'Cellular respiration, NAD+/NADP+ synthesis, DNA repair, heat generation',
+                deficiencySigns: 'Pellagra (3 D\'s: Dermatitis, Diarrhea, Dementia), photosensitivity',
+                herbs: 'Bai Hu Tang (White Tiger Decoction) for channel heat, Cheng Qi Tang (Qi-Infusing Decoction) for organ heat',
+                points: 'LI11, LI4, ST44, ST25',
+                foods: 'Chicken, tuna, turkey, peanuts, mushrooms, green peas',
+                treatmentOrder: 'SECOND - After Tai Yang cleared or if pure interior heat'
+            },
+            shaoyang: {
+                name: 'Shao Yang',
+                subtitle: 'Lesser Yang - Half-Exterior/Half-Interior',
+                vitamin: 'B2 (Riboflavin)',
+                vitaminColor: 'yellow',
+                maxScore: 13,
+                color: 'yellow',
+                priority: 3,
+                principle: 'Harmonize Shao Yang (和解少阳)',
+                description: 'Pathogen trapped between layers. B2 (Riboflavin) as FAD/FMN maintains redox balance and mitochondrial energy generation.',
+                metabolicFunction: 'Mitochondrial energy, oxidation-reduction reactions, antioxidant regeneration (glutathione)',
+                deficiencySigns: 'Angular stomatitis, glossitis, photophobia, cracked lips, seborrheic dermatitis',
+                herbs: 'Xiao Chai Hu Tang (Minor Bupleurum Decoction) - primary Shao Yang formula',
+                points: 'TB5, GB34, GB40, Liv13',
+                foods: 'Liver, almonds, eggs, dairy, mushrooms, spinach',
+                treatmentOrder: 'THIRD - Cannot use sweating or purging; harmonize only'
+            },
+            taiyin: {
+                name: 'Tai Yin',
+                subtitle: 'Greater Yin - Interior Cold/Deficiency',
+                vitamin: 'B5 (Pantothenic Acid)',
+                vitaminColor: 'cyan',
+                maxScore: 13,
+                color: 'cyan',
+                priority: 4,
+                principle: 'Warm the Middle (温中)',
+                description: 'Pathogen penetrated to Spleen/Lung. B5 (Pantothenic Acid) forms Coenzyme A for acetyl-CoA synthesis and adrenal function.',
+                metabolicFunction: 'CoA synthesis, fatty acid metabolism, steroid synthesis, adrenal hormone production',
+                deficiencySigns: 'Burning feet syndrome, fatigue, adrenal insufficiency, digestive dysfunction',
+                herbs: 'Li Zhong Tang (Regulate the Middle Decoction) for Spleen Yang deficiency',
+                points: 'SP3, ST36, CV12, BL20',
+                foods: 'Liver, yeast, egg yolks, avocados, legumes, whole grains',
+                treatmentOrder: 'FOURTH - First Yin stage; warm and tonify'
+            },
+            shaoyin: {
+                name: 'Shao Yin',
+                subtitle: 'Lesser Yin - Deep Deficiency',
+                vitamin: 'B9 (Folate) + B12 (Cobalamin)',
+                vitaminColor: 'purple',
+                maxScore: 12,
+                color: 'purple',
+                priority: 5,
+                principle: 'Rescue Yang (回阳) or Nourish Yin (滋阴)',
+                description: 'Heart-Kidney axis affected. B9/B12 drive methylation cycles, DNA synthesis, and neurological function. Critical for essence (jing) preservation.',
+                metabolicFunction: 'Methylation, DNA/RNA synthesis, red blood cell formation, myelin synthesis',
+                deficiencySigns: 'Megaloblastic anemia, neuropathy, cognitive decline, glossitis, elevated homocysteine',
+                herbs: 'Si Ni Tang (Frigid Extremities Decoction) for cold pattern, Huang Lian E Jiao Tang for heat pattern',
+                points: 'KI3, HT7, BL15, BL23',
+                foods: 'Liver, clams, eggs, leafy greens, legumes, fortified foods (B12: animal products only)',
+                treatmentOrder: 'FIFTH - Deep deficiency; avoid sweating/purging'
+            },
+            jueyin: {
+                name: 'Jue Yin',
+                subtitle: 'Terminal Yin - Mixed Heat/Cold',
+                vitamin: 'B6 (Pyridoxine)',
+                vitaminColor: 'indigo',
+                maxScore: 14,
+                color: 'indigo',
+                priority: 6,
+                principle: 'Clear Upper Heat, Warm Lower Cold (清上温下)',
+                description: 'Final stage with complex mixed patterns. B6 (Pyridoxine) as PLP regulates amino acid metabolism and neurotransmitter balance.',
+                metabolicFunction: 'Transamination, neurotransmitter synthesis (serotonin, dopamine, GABA), glycogen metabolism',
+                deficiencySigns: 'Depression, confusion, dermatitis, cheilitis, neuropathy, immune dysfunction',
+                herbs: 'Wu Mei Wan (Mume Pill) for roundworm patterns, Dang Gui Si Ni Tang for blood deficiency with cold',
+                points: 'Liv3, PC6, SP4, ST36',
+                foods: 'Liver, fish, poultry, potatoes, bananas, chickpeas',
+                treatmentOrder: 'SIXTH - Final stage; complex balancing required'
+            }
+        };
+
+        // Treatment priority rules based on Shang Han Lun
+        const treatmentRules = [
+            "Exterior (Biao) before Interior (Li) - Always clear Tai Yang first if present",
+            "Yang stages before Yin stages - Clear heat before tonifying deficiency",
+            "Upper before Lower - Treat chest/head before abdomen/feet",
+            "Acute before Chronic - Address new symptoms before long-standing patterns",
+            "Excess before Deficiency - Drain excess before tonifying deficiency",
+            "Simple before Complex - Single stage before multi-stage patterns"
+        ];
+
+        // Calculate score for a specific stage
+        function calculateScore(stage) {
+            const card = document.querySelector(`[data-stage="${stage}"]`);
+            const checkboxes = card.querySelectorAll('input[type="checkbox"]:checked');
+            const radios = card.querySelectorAll('input[type="radio"]:checked');
+            
+            let score = 0;
+            checkboxes.forEach(cb => score += parseInt(cb.dataset.points) || 0);
+            radios.forEach(rb => score += parseInt(rb.dataset.points) || 0);
+            
+            // Update display
+            document.getElementById(`score-${stage}`).textContent = score;
+            
+            // Highlight active card if score > 0
+            if (score > 0) {
+                card.classList.add('active');
+            } else {
+                card.classList.remove('active');
+            }
+            
+            updateAnalysis();
+        }
+
+        // Update the analysis panel
+        function updateAnalysis() {
+            const stages = ['taiyang', 'yangming', 'shaoyang', 'taiyin', 'shaoyin', 'jueyin'];
+            const scores = {};
+            let totalScore = 0;
+            let maxScore = 0;
+            let primaryStage = null;
+            
+            stages.forEach(stage => {
+                const score = parseInt(document.getElementById(`score-${stage}`).textContent) || 0;
+                scores[stage] = score;
+                totalScore += score;
+                if (score > maxScore) {
+                    maxScore = score;
+                    primaryStage = stage;
+                }
+            });
+            
+            const emptyState = document.getElementById('empty-state');
+            const resultsContent = document.getElementById('results-content');
+            
+            if (totalScore === 0) {
+                emptyState.style.display = 'block';
+                resultsContent.classList.remove('visible-section');
+                resultsContent.classList.add('hidden-section');
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            resultsContent.classList.remove('hidden-section');
+            resultsContent.classList.add('visible-section');
+            
+            // Update primary stage
+            if (primaryStage) {
+                const config = stageConfig[primaryStage];
+                document.getElementById('primary-stage').textContent = config.name;
+                document.getElementById('primary-subtitle').textContent = config.subtitle + ' • ' + config.vitamin;
+                
+                // Calculate confidence
+                const confidence = Math.round((maxScore / config.maxScore) * 100);
+                document.getElementById('confidence-score').textContent = confidence + '%';
+                document.getElementById('confidence-bar').style.width = confidence + '%';
+                
+                // Update pattern description
+                document.getElementById('pattern-description').textContent = config.description;
+            }
+            
+            // Update distribution bars
+            stages.forEach(stage => {
+                const score = scores[stage];
+                const max = stageConfig[stage].maxScore;
+                const percentage = max > 0 ? Math.round((score / max) * 100) : 0;
+                
+                document.getElementById(`bar-${stage}`).style.width = percentage + '%';
+                document.getElementById(`pct-${stage}`).textContent = percentage + '%';
+            });
+        }
+
+        // Generate full report with treatment principles and B vitamin sequencing
+        function generateReport() {
+            const stages = ['taiyang', 'yangming', 'shaoyang', 'taiyin', 'shaoyin', 'jueyin'];
+            const scores = {};
+            let maxScore = 0;
+            let primaryStage = null;
+            let totalScore = 0;
+            
+            stages.forEach(stage => {
+                const score = parseInt(document.getElementById(`score-${stage}`).textContent) || 0;
+                scores[stage] = score;
+                totalScore += score;
+                if (score > (score > maxScore) {
+                    maxScore = score;
+                    primaryStage = stage;
+                }
+            });
+            
+            if (totalScore === 0) {
+                alert('Please select symptoms before generating a report.');
+                return;
+            }
+            
+            // Get affected stages sorted by treatment priority (not score)
+            const affectedStages = stages.filter(stage => scores[stage] > 0);
+            const priorityOrder = affectedStages.sort((a, b) => stageConfig[a].priority - stageConfig[b].priority);
+            
+            // Calculate B vitamin priority list based on TCM treatment order
+            const bVitaminSequence = priorityOrder.map((stage, index) => ({
+                stage: stage,
+                name: stageConfig[stage].name,
+                vitamin: stageConfig[stage].vitamin,
+                score: scores[stage],
+                percentage: Math.round((scores[stage] / stageConfig[stage].maxScore) * 100),
+                priority: stageConfig[stage].priority,
+                principle: stageConfig[stage].principle,
+                treatmentOrder: stageConfig[stage].treatmentOrder
+            }));
+            
+            let reportHTML = `
+                <div class="space-y-6">
+                    <div class="bg-stone-50 p-4 rounded-lg border-l-4 border-red-700">
+                        <h4 class="font-bold text-lg text-stone-900 mb-2">Primary Diagnosis: ${stageConfig[primaryStage].name}</h4>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="vitamin-badge">${stageConfig[primaryStage].vitamin}</span>
+                            <span class="text-sm text-stone-600">${stageConfig[primaryStage].metabolicFunction}</span>
+                        </div>
+                        <p class="text-stone-700 text-sm">${stageConfig[primaryStage].description}</p>
+                        <div class="mt-3 flex items-center space-x-2">
+                            <span class="text-sm font-semibold text-stone-600">Confidence:</span>
+                            <span class="text-lg font-bold text-red-700">${Math.round((maxScore / stageConfig[primaryStage].maxScore) * 100)}%</span>
+                        </div>
+                    </div>
+            `;
+            
+            // Show treatment principles for multi-stage patterns
+            if (affectedStages.length > 1) {
+                reportHTML += `
+                    <div class="treatment-principle-card p-4 rounded-lg">
+                        <h4 class="font-bold text-blue-900 mb-3 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                            </svg>
+                            Treatment Priority Principles (Shang Han Lun)
+                        </h4>
+                        <div class="space-y-2 mb-4">
+                            ${treatmentRules.map(rule => `
+                                <div class="flex items-start gap-2 text-sm text-blue-800">
+                                    <span class="text-blue-500 mt-1">•</span>
+                                    <span>${rule}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="bg-white p-3 rounded border border-blue-200">
+                            <p class="text-sm text-blue-900 font-semibold mb-1">Clinical Application:</p>
+                            <p class="text-sm text-blue-800">When multiple stages are affected, follow the sequence below. Do NOT treat Yin stages before clearing Yang stages. Do NOT tonify deficiency before clearing excess.</p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold text-stone-900 mb-3 border-b border-stone-200 pb-2">Multi-Stage Pattern Analysis</h4>
+                        <div class="space-y-3">
+                `;
+                
+                // Show stages sorted by treatment priority (not score)
+                priorityOrder.forEach((stage, index) => {
+                    const config = stageConfig[stage];
+                    const score = scores[stage];
+                    const percentage = Math.round((score / config.maxScore) * 100);
+                    const isPrimary = stage === primaryStage;
+                    
+                    reportHTML += `
+                        <div class="flex items-center justify-between p-3 ${isPrimary ? 'bg-red-50 border-2 border-red-200 rounded-lg' : 'bg-white border border-stone-200 rounded-lg'}">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-${config.color}-100 flex items-center justify-center text-${config.color}-700 font-bold text-sm">
+                                    ${config.priority}
+                                </div>
+                                <div>
+                                    <div class="font-semibold ${isPrimary ? 'text-red-900' : 'text-stone-900'}">${config.name}</div>
+                                    <div class="text-xs text-amber-600 font-medium">${config.vitamin}</div>
+                                    <div class="text-xs text-stone-500">${config.principle}</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold ${isPrimary ? 'text-red-700' : 'text-stone-700'}">${score}/${config.maxScore}</div>
+                                <div class="text-xs text-stone-500">${percentage}% match</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                reportHTML += `
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // B Vitamin Protocol Section with Treatment Sequence
+            reportHTML += `
+                <div class="b-vitamin-card p-4 rounded-lg">
+                    <h4 class="font-bold text-amber-900 mb-3 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                        </svg>
+                        B Vitamin Treatment Protocol
+                    </h4>
+                    <p class="text-sm text-amber-800 mb-3 italic">Follow this EXACT sequence based on TCM treatment principles. Each B vitamin corresponds to the stage priority.</p>
+                    
+                    <div class="bg-white p-3 rounded border border-amber-200 mb-4">
+                        <p class="text-sm font-bold text-amber-900 mb-1">⚠️ CRITICAL RULES:</p>
+                        <ul class="text-sm text-amber-800 space-y-1 list-disc list-inside">
+                            <li>Start with Priority 1 (Exterior/Tai Yang) even if score is lower than interior stages</li>
+                            <li>Add next B vitamin only after 3-5 days at previous level</li>
+                            <li>Never skip sequence: B1 → B3 → B2 → B5 → B9/B12 → B6</li>
+                            <li>If both Yang and Yin stages present, complete all Yang before starting Yin</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="space-y-4">
+            `;
+            
+            bVitaminSequence.forEach((item, index) => {
+                const config = stageConfig[item.stage];
+                const isLast = index === bVitaminSequence.length - 1;
+                
+                reportHTML += `
+                    <div class="bg-white p-4 rounded border-2 border-amber-200 ${index === 0 ? 'ring-2 ring-amber-400 shadow-lg' : ''}">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-amber-500 text-white flex items-center justify-center text-lg font-bold shadow-md">
+                                    ${item.priority}
+                                </div>
+                                <div>
+                                    <div class="font-bold text-stone-900 text-lg">${config.vitamin}</div>
+                                    <div class="text-sm text-stone-600">${config.name} Stage</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-bold ${index === 0 ? 'text-amber-600' : 'text-stone-400'}">
+                                    ${index === 0 ? 'START HERE' : `Add Day ${(index * 3) + 1}`}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3 p-2 bg-amber-50 rounded">
+                            <span class="text-xs font-bold text-amber-800 uppercase">TCM Principle:</span>
+                            <span class="text-sm text-amber-900 ml-1">${config.principle}</span>
+                        </div>
+                        
+                        <p class="text-sm text-stone-700 mb-2"><strong>Metabolic Function:</strong> ${config.metabolicFunction}</p>
+                        <p class="text-xs text-stone-600 mb-3"><strong>Deficiency Signs:</strong> ${config.deficiencySigns}</p>
+                        
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div class="bg-stone-50 p-2 rounded">
+                                <strong>Food Sources:</strong> ${config.foods}
+                            </div>
+                            <div class="bg-stone-50 p-2 rounded">
+                                <strong>Clinical Note:</strong> ${config.treatmentOrder}
+                            </div>
+                        </div>
+                        
+                        ${!isLast ? `
+                            <div class="mt-3 flex items-center justify-center">
+                                <div class="sequence-arrow">↓</div>
+                                <span class="text-xs text-stone-500 ml-2">Wait 3-5 days before adding next</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            reportHTML += `
+                    </div>
+                </div>
+            `;
+            
+            // Clinical Recommendations
+            reportHTML += `
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <h5 class="font-bold text-blue-900 mb-2">Primary Herbal Formula</h5>
+                        <p class="text-sm text-blue-800">${stageConfig[primaryStage].herbs}</p>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <h5 class="font-bold text-green-900 mb-2">Key Acupuncture Points</h5>
+                        <p class="text-sm text-green-800">${stageConfig[primaryStage].points}</p>
+                    </div>
+                </div>
+                
+                <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                    <h5 class="font-bold text-yellow-900 mb-2">Clinical Integration & Safety Notes</h5>
+                    <ul class="text-sm text-yellow-800 space-y-1 list-disc list-inside">
+                        <li><strong>Sequential Protocol:</strong> B vitamins must follow TCM stage sequence, not symptom severity</li>
+                        <li><strong>Foundation Support:</strong> Always maintain B-complex base while emphasizing specific B vitamins</li>
+                        <li><strong>Monitoring:</strong> Watch for paradoxical reactions indicating methylation issues (especially B9/B12)</li>
+                        <li><strong>Contraindications:</strong> Do not use B3 (Yang Ming) if Tai Yang exterior still present</li>
+                        <li><strong>Deficiency Correlation:</strong> Check tongue (B12: pale beefy, B2: magenta, B3: beefy red)</li>
+                        <li><strong>Lifestyle Factors:</strong> Address anti-nutrients: alcohol, sugar, stress, processed foods</li>
+                        <li><strong>Absorption:</strong> B12 requires intrinsic factor; consider sublingual if Shao Yin deficiency severe</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                    <h5 class="font-bold text-red-900 mb-2">⚠️ Critical Treatment Warnings</h5>
+                    <ul class="text-sm text-red-800 space-y-1 list-disc list-inside">
+                        <li>Never tonify (B5, B9/B12, B6) while exterior pathogen still present (Tai Yang)</li>
+                        <li>Never drain/purge while Shao Yang half-exterior/half-interior pattern exists</li>
+                        <li>Jue Yin (B6) stage requires careful balancing - monitor for mixed reactions</li>
+                        <li>Multiple Yang stages: treat Tai Yang → Yang Ming → Shao Yang in sequence</li>
+                        <li>If all six stages affected: Start B1 only, add others weekly, monitor closely</li>
+                    </ul>
+                </div>
+                
+                <div class="text-xs text-stone-400 text-center pt-4 border-t border-stone-200">
+                    Generated by TCM Six Stages & B Vitamin Metabolic Analysis System • Based on Shang Han Lun (Treatise on Cold Damage) by Zhang Zhong Jing • Treatment principles follow classical Liu Jing Bian Zheng methodology • For educational purposes only - consult licensed practitioner
+                </div>
+            </div>
+            `;
+            
+            document.getElementById('report-content').innerHTML = reportHTML;
+            document.getElementById('report-modal').classList.remove('hidden');
+            document.getElementById('report-modal').classList.add('flex');
+        }
+
+        function closeReport() {
+            document.getElementById('report-modal').classList.add('hidden');
+            document.getElementById('report-modal').classList.remove('flex');
+        }
+
+        function resetForm() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            const radios = document.querySelectorAll('input[type="radio"]');
+            
+            checkboxes.forEach(cb => cb.checked = false);
+            radios.forEach(rb => rb.checked = false);
+            
+            document.querySelectorAll('.stage-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            ['taiyang', 'yangming', 'shaoyang', 'taiyin', 'shaoyin', 'jueyin'].forEach(stage => {
+                document.getElementById(`score-${stage}`).textContent = '0';
+                document.getElementById(`bar-${stage}`).style.width = '0%';
+                document.getElementById(`pct-${stage}`).textContent = '0%';
+            });
+            
+            document.getElementById('empty-state').style.display = 'block';
+            document.getElementById('results-content').classList.remove('visible-section');
+            document.getElementById('results-content').classList.add('hidden-section');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Close modal on outside click
+        document.getElementById('report-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeReport();
+            }
+        });
+    </script>
+</body>
+</html>
