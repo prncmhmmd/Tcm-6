@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCM Six Stages Diagnostic System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink-black: #1a1a1a;
+            --rice-paper: #f7f5f0;
+            --cinnabar: #c9372c;
+            --jade: #4a7c59;
+            --sage: #8b9a7d;
+            --warm-gray: #e8e4dc;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--rice-paper);
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4cfc4' fill-opacity='0.2'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        
+        .serif-sc {
+            font-family: 'Noto Serif SC', serif;
+        }
+        
+        .stage-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid transparent;
+        }
+        
+        .stage-card.active {
+            border-left-color: var(--cinnabar);
+            background: linear-gradient(135deg, rgba(201, 55, 44, 0.05) 0%, rgba(255,255,255,0) 100%);
+            transform: translateX(8px);
+        }
+        
+        .stage-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.1);
+        }
+        
+        .checkbox-custom {
+            appearance: none;
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 2px solid #d1d5db;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+        }
+        
+        .checkbox-custom:checked {
+            background-color: var(--cinnabar);
+            border-color: var(--cinnabar);
+        }
+        
+        .checkbox-custom:checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 1rem;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.5s ease-in-out;
+        }
+        
+        .pulse-indicator {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+        
+        .result-panel {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: var(--rice-paper);
+        }
+        
+        .score-bar {
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .floating-label {
+            position: absolute;
+            top: -0.5rem;
+            left: 1rem;
+            background: var(--rice-paper);
+            padding: 0 0.5rem;
+            font-size: 0.75rem;
+            color: var(--cinnabar);
+            font-weight: 600;
+        }
+        
+        .yin-yang-spin {
+            animation: spin 20s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .hidden-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .visible-section {
+            display: block;
+            opacity: 1;
+        }
+        
+        .btn-primary {
+            background: var(--cinnabar);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: #a82d24;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(201, 55, 44, 0.3);
+        }
+        
+        .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .has-tooltip:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-md border-b border-stone-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-stone-900 rounded-full flex items-center justify-center text-white serif-sc text-xl font-bold relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-red-600 to-black opacity-80"></div>
+                    <span class="relative z-10">医</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-stone-900 serif-sc tracking-wide">六经辨证</h1>
+                    <p class="text-xs text-stone-500 uppercase tracking-widest">Six Stages Diagnostic System</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button onclick="resetForm()" class="text-sm text-stone-600 hover:text-red-700 transition-colors font-medium">
+                    Reset Assessment
+                </button>
+                <div class="has-tooltip relative">
+                    <button class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center transition-colors">
+                        <svg class="w-5 h-5 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </button>
+                    <div class="tooltip absolute right-0 top-10 w-80 bg-stone-900 text-white text-sm p-4 rounded-lg shadow-2xl z-50">
+                        Based on Zhang Zhong Jing's Shang Han Lun (Treatise on Cold Damage). This tool assists in pattern differentiation but does not replace professional TCM diagnosis.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Intro Section -->
+        <div id="intro-section" class="mb-12 text-center max-w-3xl mx-auto">
+            <h2 class="text-4xl font-bold text-stone-900 mb-4 serif-sc">Six Stages Questionnaire</h2>
+            <p class="text-lg text-stone-600 mb-8 leading-relaxed">
+                Select all symptoms that apply. The system will automatically calculate the dominant stage based on the 
+                <span class="font-semibold text-red-800">Shang Han Lun</span> pattern differentiation methodology.
+            </p>
+            
+            <div class="grid grid-cols-3 gap-4 mb-8 text-sm">
+                <div class="bg-white p-4 rounded-lg border border-stone-200 shadow-sm">
+                    <div class="font-bold text-stone-900 mb-1">Yang Stages</div>
+                    <div class="text-stone-500">Tai Yang → Yang Ming → Shao Yang</div>
+                </div>
+                <div class="bg-white p-4 rounded-lg border border-stone-200 shadow-sm">
+                    <div class="font-bold text-stone-900 mb-1">Yin Stages</div>
+                    <div class="text-stone-500">Tai Yin → Shao Yin → Jue Yin</div>
+                </div>
+                <div class="bg-white p-4 rounded-lg border border-stone-200 shadow-sm">
+                    <div class="font-bold text-stone-900 mb-1">Progression</div>
+                    <div class="text-stone-500">Exterior → Interior</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column: Questionnaire -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Tai Yang -->
+                <div class="stage-card bg-white rounded-xl p-6 shadow-sm border border-stone-200" data-stage="taiyang">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold text-stone-900 serif-sc">Tai Yang <span class="text-lg text-stone-500 font-normal">Greater Yang</span></h3>
+                            <p class="text-sm text-red-700 font-medium mt-1">Exterior Stage • Surface Defense</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-bold text-stone-300" id="score-taiyang">0</div>
+                            <div class="text-xs text-stone-500 uppercase tracking-wider">Points</div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="3" onchange="calculateScore('taiyang')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Fever with simultaneous chills</span>
+                                <p class="text-sm text-stone-500">Fever does not relieve cold sensation; aversion to cold persists</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">3 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('taiyang')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Stiff neck or occipital headache</span>
+                                <p class="text-sm text-stone-500">Pain and stiffness at the back of head and neck (GB20 area)</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('taiyang')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">General body aches or joint pain</span>
+                                <p class="text-sm text-stone-500">Diffuse pain throughout body, worse with movement</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <div class="bg-stone-50 p-3 rounded-lg border border-stone-200 mt-2">
+                            <p class="text-sm font-semibold text-stone-700 mb-2">Sweating Status (Select one):</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="radio" name="taiyang-sweat" class="w-4 h-4 text-red-700 focus:ring-red-700" data-points="2" onchange="calculateScore('taiyang')">
+                                    <span class="text-sm"><strong>Tai Yang Wind (Exterior Deficiency):</strong> Sweating easily, slight aversion to wind</span>
+                                </label>
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="radio" name="taiyang-sweat" class="w-4 h-4 text-red-700 focus:ring-red-700" data-points="2" onchange="calculateScore('taiyang')">
+                                    <span class="text-sm"><strong>Tai Yang Cold (Exterior Excess):</strong> No sweating, skin feels tight/dry</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('taiyang')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Floating pulse</span>
+                                <p class="text-sm text-stone-500">Pulse felt easily at superficial level (cun position)</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Yang Ming -->
+                <div class="stage-card bg-white rounded-xl p-6 shadow-sm border border-stone-200" data-stage="yangming">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold text-stone-900 serif-sc">Yang Ming <span class="text-lg text-stone-500 font-normal">Bright Yang</span></h3>
+                            <p class="text-sm text-orange-700 font-medium mt-1">Interior Heat • The "Four Bigs"</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-bold text-stone-300" id="score-yangming">0</div>
+                            <div class="text-xs text-stone-500 uppercase tracking-wider">Points</div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="3" onchange="calculateScore('yangming')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">High fever WITHOUT chills</span>
+                                <p class="text-sm text-stone-500">Continuous high-grade fever, no aversion to cold</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">3 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('yangming')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Profuse sweating</span>
+                                <p class="text-sm text-stone-500">Spontaneous sweating, especially on trunk</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('yangming')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Extreme thirst</span>
+                                <p class="text-sm text-stone-500">Intense desire for cold drinks, drinking in large quantities</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('yangming')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Big/Full/Excess pulse</span>
+                                <p class="text-sm text-stone-500">Pulse strong, forceful, and flooding (洪脉)</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('yangming')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Constipation or abdominal distension</span>
+                                <p class="text-sm text-stone-500">Heat drying fluids in Yang Ming Fu (Organ) pattern</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="1" onchange="calculateScore('yangming')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Flushed red face</span>
+                                <p class="text-sm text-stone-500">Facial redness, possibly with heat sensation</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">1 pt</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Shao Yang -->
+                <div class="stage-card bg-white rounded-xl p-6 shadow-sm border border-stone-200" data-stage="shaoyang">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold text-stone-900 serif-sc">Shao Yang <span class="text-lg text-stone-500 font-normal">Lesser Yang</span></h3>
+                            <p class="text-sm text-yellow-700 font-medium mt-1">Half-Exterior/Half-Interior • Pivot Stage</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-bold text-stone-300" id="score-shaoyang">0</div>
+                            <div class="text-xs text-stone-500 uppercase tracking-wider">Points</div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="3" onchange="calculateScore('shaoyang')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Alternating chills and fever</span>
+                                <p class="text-sm text-stone-500">Chills followed by fever (not simultaneous); periodic attacks</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">3 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('shaoyang')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Bitter taste in mouth</span>
+                                <p class="text-sm text-stone-500">Persistent bitter or metallic taste</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('shaoyang')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Rib-side or hypochondriac pain/fullness</span>
+                                <p class="text-sm text-stone-500">Discomfort along costal margin, worse with pressure</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('shaoyang')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Nausea, vomiting, or poor appetite</span>
+                                <p class="text-sm text-stone-500">Digestive disturbance, possibly with dry retching</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="1" onchange="calculateScore('shaoyang')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Dry throat or blurred vision</span>
+                                <p class="text-sm text-stone-500">Shaoyang channel affecting eyes and throat</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">1 pt</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="1" onchange="calculateScore('shaoyang')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Irritability or mental restlessness</span>
+                                <p class="text-sm text-stone-500">Emotional disturbance due to trapped heat</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">1 pt</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Tai Yin -->
+                <div class="stage-card bg-white rounded-xl p-6 shadow-sm border border-stone-200" data-stage="taiyin">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold text-stone-900 serif-sc">Tai Yin <span class="text-lg text-stone-500 font-normal">Greater Yin</span></h3>
+                            <p class="text-sm text-blue-700 font-medium mt-1">Interior Cold/Deficiency • Spleen/Lung</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-bold text-stone-300" id="score-taiyin">0</div>
+                            <div class="text-xs text-stone-500 uppercase tracking-wider">Points</div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="3" onchange="calculateScore('taiyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Abdominal fullness or bloating</span>
+                                <p class="text-sm text-stone-500">Distension worse after eating, relieved by warmth/pressure</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">3 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('taiyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Loose stools or diarrhea</span>
+                                <p class="text-sm text-stone-500">Unformed stools, possibly undigested food</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('taiyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">No thirst or desire for warm drinks</span>
+                                <p class="text-sm text-stone-500">Aversion to cold fluids, prefers warm liquids</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('taiyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Extreme fatigue or weakness</span>
+                                <p class="text-sm text-stone-500">Spleen qi deficiency, lethargy, desire to lie down</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="1" onchange="calculateScore('taiyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Poor appetite</span>
+                                <p class="text-sm text-stone-500">Spleen dysfunction affecting digestion</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">1 pt</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Shao Yin -->
+                <div class="stage-card bg-white rounded-xl p-6 shadow-sm border border-stone-200" data-stage="shaoyin">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold text-stone-900 serif-sc">Shao Yin <span class="text-lg text-stone-500 font-normal">Lesser Yin</span></h3>
+                            <p class="text-sm text-purple-700 font-medium mt-1">Deep Deficiency • Heart-Kidney Axis</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-bold text-stone-300" id="score-shaoyin">0</div>
+                            <div class="text-xs text-stone-500 uppercase tracking-wider">Points</div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="3" onchange="calculateScore('shaoyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Cold limbs (cold hands/feet)</span>
+                                <p class="text-sm text-stone-500">Reversible or persistent cold extremities</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">3 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('shaoyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Extreme fatigue or desire to sleep</span>
+                                <p class="text-sm text-stone-500">Butyic sleepiness, mental dullness</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('shaoyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Frequent, clear urination</span>
+                                <p class="text-sm text-stone-500">Kidney yang deficiency, pale urine</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <div class="bg-stone-50 p-3 rounded-lg border border-stone-200 mt-2">
+                            <p class="text-sm font-semibold text-stone-700 mb-2">OR Heat Pattern (Shao Yin Heat):</p>
+                            <div class="space-y-2">
+                                <label class="flex items-start space-x-3 cursor-pointer">
+                                    <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('shaoyin')">
+                                    <span class="text-sm">Insomnia with mental restlessness</span>
+                                </label>
+                                <label class="flex items-start space-x-3 cursor-pointer">
+                                    <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('shaoyin')">
+                                    <span class="text-sm">Dry mouth/throat with desire to drink</span>
+                                </label>
+                                <label class="flex items-start space-x-3 cursor-pointer">
+                                    <input type="checkbox" class="checkbox-custom mt-1" data-points="1" onchange="calculateScore('shaoyin')">
+                                    <span class="text-sm">Dark/scanty urine</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Jue Yin -->
+                <div class="stage-card bg-white rounded-xl p-6 shadow-sm border border-stone-200" data-stage="jueyin">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold text-stone-900 serif-sc">Jue Yin <span class="text-lg text-stone-500 font-normal">Terminal Yin</span></h3>
+                            <p class="text-sm text-indigo-700 font-medium mt-1">Mixed Heat/Cold • Final Stage</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-bold text-stone-300" id="score-jueyin">0</div>
+                            <div class="text-xs text-stone-500 uppercase tracking-wider">Points</div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="3" onchange="calculateScore('jueyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Heat in chest/upper body with cold limbs</span>
+                                <p class="text-sm text-stone-500">Upper heat, lower cold pattern (真寒假热)</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">3 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="3" onchange="calculateScore('jueyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Hungry but no desire to eat</span>
+                                <p class="text-sm text-stone-500">Stomach heat with spleen cold; may vomit after eating</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">3 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('jueyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Thirst but drinking doesn't satisfy</span>
+                                <p class="text-sm text-stone-500">Heat consuming fluids but cold preventing absorption</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('jueyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Continuous diarrhea</span>
+                                <p class="text-sm text-stone-500">Jue Yin level affecting liver/spleen axis</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                        
+                        <label class="flex items-start space-x-3 cursor-pointer group">
+                            <input type="checkbox" class="checkbox-custom mt-1" data-points="2" onchange="calculateScore('jueyin')">
+                            <div class="flex-1">
+                                <span class="font-medium text-stone-900 group-hover:text-red-800 transition-colors">Qi rushing upward toward heart</span>
+                                <p class="text-sm text-stone-500">Sensation of energy rising, chest discomfort</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">2 pts</span>
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Results Panel -->
+            <div class="lg:col-span-1">
+                <div class="sticky top-24 space-y-6">
+                    
+                    <!-- Live Score Card -->
+                    <div class="result-panel rounded-2xl p-6 shadow-2xl">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-xl font-bold serif-sc">Diagnostic Analysis</h3>
+                            <div class="w-8 h-8 rounded-full border-2 border-white/20 flex items-center justify-center yin-yang-spin">
+                                <div class="w-4 h-4 bg-white rounded-full"></div>
+                            </div>
+                        </div>
+
+                        <div id="empty-state" class="text-center py-8 text-white/60">
+                            <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                            </svg>
+                            <p class="text-sm">Select symptoms to begin analysis</p>
+                        </div>
+
+                        <div id="results-content" class="hidden-section">
+                            <div class="mb-6">
+                                <div class="text-sm text-white/60 mb-2 uppercase tracking-wider">Primary Diagnosis</div>
+                                <div id="primary-stage" class="text-3xl font-bold text-white serif-sc mb-1">--</div>
+                                <div id="primary-subtitle" class="text-sm text-red-400 font-medium">--</div>
+                            </div>
+
+                            <div class="space-y-3 mb-6">
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-white/80">Confidence Score</span>
+                                    <span id="confidence-score" class="font-bold text-white">0%</span>
+                                </div>
+                                <div class="w-full bg-white/10 rounded-full h-2">
+                                    <div id="confidence-bar" class="bg-gradient-to-r from-red-500 to-orange-400 h-2 rounded-full score-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2 mb-6">
+                                <div class="text-xs text-white/40 uppercase tracking-wider mb-2">Stage Distribution</div>
+                                
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs w-16 text-white/60">Tai Yang</span>
+                                    <div class="flex-1 bg-white/10 rounded-full h-1.5">
+                                        <div id="bar-taiyang" class="bg-blue-400 h-1.5 rounded-full score-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span id="pct-taiyang" class="text-xs w-8 text-right text-white/60">0%</span>
+                                </div>
+                                
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs w-16 text-white/60">Yang Ming</span>
+                                    <div class="flex-1 bg-white/10 rounded-full h-1.5">
+                                        <div id="bar-yangming" class="bg-orange-400 h-1.5 rounded-full score-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span id="pct-yangming" class="text-xs w-8 text-right text-white/60">0%</span>
+                                </div>
+                                
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs w-16 text-white/60">Shao Yang</span>
+                                    <div class="flex-1 bg-white/10 rounded-full h-1.5">
+                                        <div id="bar-shaoyang" class="bg-yellow-400 h-1.5 rounded-full score-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span id="pct-shaoyang" class="text-xs w-8 text-right text-white/60">0%</span>
+                                </div>
+                                
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs w-16 text-white/60">Tai Yin</span>
+                                    <div class="flex-1 bg-white/10 rounded-full h-1.5">
+                                        <div id="bar-taiyin" class="bg-cyan-400 h-1.5 rounded-full score-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span id="pct-taiyin" class="text-xs w-8 text-right text-white/60">0%</span>
+                                </div>
+                                
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs w-16 text-white/60">Shao Yin</span>
+                                    <div class="flex-1 bg-white/10 rounded-full h-1.5">
+                                        <div id="bar-shaoyin" class="bg-purple-400 h-1.5 rounded-full score-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span id="pct-shaoyin" class="text-xs w-8 text-right text-white/60">0%</span>
+                                </div>
+                                
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs w-16 text-white/60">Jue Yin</span>
+                                    <div class="flex-1 bg-white/10 rounded-full h-1.5">
+                                        <div id="bar-jueyin" class="bg-indigo-400 h-1.5 rounded-full score-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span id="pct-jueyin" class="text-xs w-8 text-right text-white/60">0%</span>
+                                </div>
+                            </div>
+
+                            <div id="recommendation-box" class="bg-white/5 rounded-lg p-4 border border-white/10">
+                                <div class="text-xs text-white/40 uppercase tracking-wider mb-2">Clinical Pattern</div>
+                                <p id="pattern-description" class="text-sm text-white/90 leading-relaxed">
+                                    Select symptoms to generate pattern analysis.
+                                </p>
+                            </div>
+                        </div>
+
+                        <button onclick="generateReport()" class="w-full mt-6 bg-white text-stone-900 font-semibold py-3 rounded-lg hover:bg-stone-100 transition-colors flex items-center justify-center space-x-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <span>Generate Full Report</span>
+                        </button>
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
+                        <h4 class="font-bold text-stone-900 mb-4 text-sm uppercase tracking-wider">Scoring Guide</h4>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-3 h-3 rounded-full bg-red-600"></div>
+                                <span class="text-stone-600">3 pts: Pathognomonic (Defining characteristic)</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <div class="w-3 h-3 rounded-full bg-orange-500"></div>
+                                <span class="text-stone-600">2 pts: Major associated symptom</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                <span class="text-stone-600">1 pt: Supporting symptom</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-stone-100 text-xs text-stone-500 leading-relaxed">
+                            <strong>Note:</strong> This tool follows the Shang Han Lun diagnostic framework. Results should be correlated with tongue diagnosis and pulse palpation for clinical confirmation.
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Report Modal -->
+    <div id="report-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div class="p-6 border-b border-stone-200 flex items-center justify-between sticky top-0 bg-white">
+                <h3 class="text-2xl font-bold serif-sc text-stone-900">Diagnostic Report</h3>
+                <button onclick="closeReport()" class="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center transition-colors">
+                    <svg class="w-5 h-5 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6 space-y-6" id="report-content">
+                <!-- Content generated by JS -->
+            </div>
+            <div class="p-6 border-t border-stone-200 bg-stone-50 flex justify-end space-x-3">
+                <button onclick="closeReport()" class="px-4 py-2 text-stone-600 hover:text-stone-900 font-medium">Close</button>
+                <button onclick="window.print()" class="px-4 py-2 bg-stone-900 text-white rounded-lg hover:bg-stone-800 font-medium">Print Report</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Stage configurations
+        const stageConfig = {
+            taiyang: {
+                name: 'Tai Yang',
+                subtitle: 'Greater Yang - Exterior Stage',
+                maxScore: 12,
+                color: 'blue',
+                description: 'Pathogen at the surface level. Defense Qi is engaged but not yet penetrated. Treatment principle: Release the exterior, induce sweating.',
+                herbs: 'Ma Huang Tang (Ephedra Decoction) for cold pattern, Gui Zhi Tang (Cinnamon Twig Decoction) for wind pattern.',
+                points: 'GB20, LI4, LU7, BL12'
+            },
+            yangming: {
+                name: 'Yang Ming',
+                subtitle: 'Bright Yang - Interior Heat',
+                maxScore: 12,
+                color: 'orange',
+                description: 'Pathogen has transformed into interior heat. The "Four Bigs" dominate: big fever, big thirst, big sweating, big pulse. Treatment principle: Clear heat, purge if necessary.',
+                herbs: 'Bai Hu Tang (White Tiger Decoction) for channel heat, Cheng Qi Tang (Qi-Infusing Decoction) for organ heat with constipation.',
+                points: 'LI11, LI4, ST44, ST25'
+            },
+            shaoyang: {
+                name: 'Shao Yang',
+                subtitle: 'Lesser Yang - Half-Exterior/Half-Interior',
+                maxScore: 11,
+                color: 'yellow',
+                description: 'Pathogen trapped between layers, neither fully exterior nor interior. Alternating symptoms indicate the pivot mechanism is disrupted. Treatment principle: Harmonize Shao Yang.',
+                herbs: 'Xiao Chai Hu Tang (Minor Bupleurum Decoction) - the primary Shao Yang formula.',
+                points: 'TB5, GB34, GB40, Liv13'
+            },
+            taiyin: {
+                name: 'Tai Yin',
+                subtitle: 'Greater Yin - Interior Cold/Deficiency',
+                maxScore: 10,
+                color: 'cyan',
+                description: 'Pathogen has penetrated to Spleen and Lung. Cold and deficiency dominate. Treatment principle: Warm the middle, strengthen Spleen Yang.',
+                herbs: 'Li Zhong Tang (Regulate the Middle Decoction) for Spleen Yang deficiency.',
+                points: 'SP3, ST36, CV12, BL20'
+            },
+            shaoyin: {
+                name: 'Shao Yin',
+                subtitle: 'Lesser Yin - Deep Deficiency',
+                maxScore: 10,
+                color: 'purple',
+                description: 'Heart-Kidney axis affected. Split into cold (yang deficiency) or heat (yin deficiency) patterns. Treatment principle: Rescue Yang or nourish Yin.',
+                herbs: 'Si Ni Tang (Frigid Extremities Decoction) for cold pattern, Huang Lian E Jiao Tang for heat pattern.',
+                points: 'KI3, HT7, BL15, BL23'
+            },
+            jueyin: {
+                name: 'Jue Yin',
+                subtitle: 'Terminal Yin - Mixed Heat/Cold',
+                maxScore: 12,
+                color: 'indigo',
+                description: 'Final stage with complex mixed patterns. Heat above, cold below. Liver and Pericardium channels affected. Treatment principle: Warm the lower, clear the upper.',
+                herbs: 'Wu Mei Wan (Mume Pill) for roundworm patterns, Dang Gui Si Ni Tang for blood deficiency with cold.',
+                points: 'Liv3, PC6, SP4, ST36'
+            }
+        };
+
+        // Calculate score for a specific stage
+        function calculateScore(stage) {
+            const card = document.querySelector(`[data-stage="${stage}"]`);
+            const checkboxes = card.querySelectorAll('input[type="checkbox"]:checked');
+            const radios = card.querySelectorAll('input[type="radio"]:checked');
+            
+            let score = 0;
+            checkboxes.forEach(cb => score += parseInt(cb.dataset.points) || 0);
+            radios.forEach(rb => score += parseInt(rb.dataset.points) || 0);
+            
+            // Update display
+            document.getElementById(`score-${stage}`).textContent = score;
+            
+            // Highlight active card if score > 0
+            if (score > 0) {
+                card.classList.add('active');
+            } else {
+                card.classList.remove('active');
+            }
+            
+            updateAnalysis();
+        }
+
+        // Update the analysis panel
+        function updateAnalysis() {
+            const stages = ['taiyang', 'yangming', 'shaoyang', 'taiyin', 'shaoyin', 'jueyin'];
+            const scores = {};
+            let totalScore = 0;
+            let maxScore = 0;
+            let primaryStage = null;
+            
+            stages.forEach(stage => {
+                const score = parseInt(document.getElementById(`score-${stage}`).textContent) || 0;
+                scores[stage] = score;
+                totalScore += score;
+                if (score > maxScore) {
+                    maxScore = score;
+                    primaryStage = stage;
+                }
+            });
+            
+            const emptyState = document.getElementById('empty-state');
+            const resultsContent = document.getElementById('results-content');
+            
+            if (totalScore === 0) {
+                emptyState.style.display = 'block';
+                resultsContent.classList.remove('visible-section');
+                resultsContent.classList.add('hidden-section');
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            resultsContent.classList.remove('hidden-section');
+            resultsContent.classList.add('visible-section');
+            
+            // Update primary stage
+            if (primaryStage) {
+                const config = stageConfig[primaryStage];
+                document.getElementById('primary-stage').textContent = config.name;
+                document.getElementById('primary-subtitle').textContent = config.subtitle;
+                
+                // Calculate confidence
+                const confidence = Math.round((maxScore / config.maxScore) * 100);
+                document.getElementById('confidence-score').textContent = confidence + '%';
+                document.getElementById('confidence-bar').style.width = confidence + '%';
+                
+                // Update pattern description
+                document.getElementById('pattern-description').textContent = config.description;
+            }
+            
+            // Update distribution bars
+            stages.forEach(stage => {
+                const score = scores[stage];
+                const max = stageConfig[stage].maxScore;
+                const percentage = max > 0 ? Math.round((score / max) * 100) : 0;
+                
+                document.getElementById(`bar-${stage}`).style.width = percentage + '%';
+                document.getElementById(`pct-${stage}`).textContent = percentage + '%';
+            });
+        }
+
+        // Generate full report
+        function generateReport() {
+            const stages = ['taiyang', 'yangming', 'shaoyang', 'taiyin', 'shaoyin', 'jueyin'];
+            const scores = {};
+            let maxScore = 0;
+            let primaryStage = null;
+            let totalScore = 0;
+            
+            stages.forEach(stage => {
+                const score = parseInt(document.getElementById(`score-${stage}`).textContent) || 0;
+                scores[stage] = score;
+                totalScore += score;
+                if (score > maxScore) {
+                    maxScore = score;
+                    primaryStage = stage;
+                }
+            });
+            
+            if (totalScore === 0) {
+                alert('Please select symptoms before generating a report.');
+                return;
+            }
+            
+            // Sort stages by score
+            const sortedStages = stages.sort((a, b) => scores[b] - scores[a]);
+            
+            let reportHTML = `
+                <div class="space-y-6">
+                    <div class="bg-stone-50 p-4 rounded-lg border-l-4 border-red-700">
+                        <h4 class="font-bold text-lg text-stone-900 mb-2">Primary Diagnosis: ${stageConfig[primaryStage].name}</h4>
+                        <p class="text-stone-700">${stageConfig[primaryStage].description}</p>
+                        <div class="mt-3 flex items-center space-x-2">
+                            <span class="text-sm font-semibold text-stone-600">Confidence:</span>
+                            <span class="text-lg font-bold text-red-700">${Math.round((maxScore / stageConfig[primaryStage].maxScore) * 100)}%</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold text-stone-900 mb-3 border-b border-stone-200 pb-2">Stage Analysis</h4>
+                        <div class="space-y-3">
+            `;
+            
+            sortedStages.forEach((stage, index) => {
+                const score = scores[stage];
+                const config = stageConfig[stage];
+                const percentage = Math.round((score / config.maxScore) * 100);
+                const isPrimary = stage === primaryStage;
+                
+                if (score > 0) {
+                    reportHTML += `
+                        <div class="flex items-center justify-between p-3 ${isPrimary ? 'bg-red-50 border border-red-200 rounded-lg' : 'bg-white border border-stone-200 rounded-lg'}">
+                            <div>
+                                <div class="font-semibold ${isPrimary ? 'text-red-900' : 'text-stone-900'}">${config.name}</div>
+                                <div class="text-xs text-stone-500">${config.subtitle}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold ${isPrimary ? 'text-red-700' : 'text-stone-700'}">${score}/${config.maxScore}</div>
+                                <div class="text-xs text-stone-500">${percentage}% match</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            reportHTML += `
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                            <h5 class="font-bold text-blue-900 mb-2">Recommended Formula</h5>
+                            <p class="text-sm text-blue-800">${stageConfig[primaryStage].herbs}</p>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                            <h5 class="font-bold text-green-900 mb-2">Key Acupuncture Points</h5>
+                            <p class="text-sm text-green-800">${stageConfig[primaryStage].points}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                        <h5 class="font-bold text-yellow-900 mb-2">Clinical Notes</h5>
+                        <ul class="text-sm text-yellow-800 space-y-1 list-disc list-inside">
+                            <li>Correlate with tongue diagnosis (color, coating, moisture)</li>
+                            <li>Confirm with pulse palpation (position, depth, rate, quality)</li>
+                            <li>Consider disease progression patterns (越经传, 直中)</li>
+                            <li>Multiple stages may coexist in complex cases</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="text-xs text-stone-400 text-center pt-4 border-t border-stone-200">
+                        Generated by TCM Six Stages Diagnostic System • Based on Shang Han Lun (Treatise on Cold Damage) • For educational purposes only
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('report-content').innerHTML = reportHTML;
+            document.getElementById('report-modal').classList.remove('hidden');
+            document.getElementById('report-modal').classList.add('flex');
+        }
+
+        function closeReport() {
+            document.getElementById('report-modal').classList.add('hidden');
+            document.getElementById('report-modal').classList.remove('flex');
+        }
+
+        function resetForm() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            const radios = document.querySelectorAll('input[type="radio"]');
+            
+            checkboxes.forEach(cb => cb.checked = false);
+            radios.forEach(rb => rb.checked = false);
+            
+            document.querySelectorAll('.stage-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            ['taiyang', 'yangming', 'shaoyang', 'taiyin', 'shaoyin', 'jueyin'].forEach(stage => {
+                document.getElementById(`score-${stage}`).textContent = '0';
+                document.getElementById(`bar-${stage}`).style.width = '0%';
+                document.getElementById(`pct-${stage}`).textContent = '0%';
+            });
+            
+            document.getElementById('empty-state').style.display = 'block';
+            document.getElementById('results-content').classList.remove('visible-section');
+            document.getElementById('results-content').classList.add('hidden-section');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Close modal on outside click
+        document.getElementById('report-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeReport();
+            }
+        });
+    </script>
+</body>
+</html>
