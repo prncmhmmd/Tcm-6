@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCM Six Stages Neuro-Balance Assessment</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+        
+        :root {
+            --taiyang: #3b82f6;
+            --shaoyang: #f59e0b;
+            --yangming: #ef4444;
+            --taiyin: #10b981;
+            --shaoyin: #8b5cf6;
+            --jueyin: #ec4899;
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            padding: 3rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            font-family: 'Crimson Text', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .stage-legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .stage-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+        }
+        
+        .stage-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            margin: 2rem 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--taiyang), var(--shaoyang), var(--yangming));
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+        
+        .question-card.active {
+            display: block;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .question-number {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+        
+        .question-text {
+            font-family: 'Crimson Text', serif;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.4;
+        }
+        
+        .stage-tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .option {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .option:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.2);
+            transform: translateX(4px);
+        }
+        
+        .option.selected {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: var(--taiyang);
+        }
+        
+        .option-marker {
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+        
+        .option.selected .option-marker {
+            background: var(--taiyang);
+            border-color: var(--taiyang);
+        }
+        
+        .intensity-slider {
+            margin-top: 1.5rem;
+            display: none;
+        }
+        
+        .intensity-slider.active {
+            display: block;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--taiyang);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            gap: 1rem;
+        }
+        
+        button {
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            flex: 1;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-primary);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .results-container {
+            display: none;
+            animation: fadeIn 0.8s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .results-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .chart-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .radar-chart {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            aspect-ratio: 1;
+            position: relative;
+        }
+        
+        .stage-bars {
+            display: grid;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .stage-bar-item {
+            display: grid;
+            gap: 0.5rem;
+        }
+        
+        .stage-bar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .stage-name {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .stage-score {
+            font-family: 'Crimson Text', serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        
+        .bar-bg {
+            height: 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease;
+            position: relative;
+        }
+        
+        .bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .recommendations {
+            display: grid;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .rec-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border-left: 4px solid;
+            transition: transform 0.3s ease;
+        }
+        
+        .rec-card:hover {
+            transform: translateY(-4px);
+        }
+        
+        .rec-card.priority-1 {
+            border-left-color: #ef4444;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, var(--card-bg) 100%);
+        }
+        
+        .rec-card.priority-2 {
+            border-left-color: #f59e0b;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, var(--card-bg) 100%);
+        }
+        
+        .rec-card.priority-3 {
+            border-left-color: #3b82f6;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, var(--card-bg) 100%);
+        }
+        
+        .rec-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+        
+        .rec-title {
+            font-family: 'Crimson Text', serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        
+        .rec-priority {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.1);
+            font-weight: 600;
+        }
+        
+        .rec-content {
+            display: grid;
+            gap: 0.75rem;
+        }
+        
+        .rec-item {
+            display: flex;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+        }
+        
+        .rec-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        
+        .rec-details h4 {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .rec-details p {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .neurotransmitter-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .neuro-tag {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .summary-box {
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .summary-title {
+            font-family: 'Crimson Text', serif;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: #fbbf24;
+        }
+        
+        .summary-text {
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+        
+        .restart-btn {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 3rem auto 0;
+            padding: 1rem;
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.2);
+            color: var(--text-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .restart-btn:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.4);
+        }
+        
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.75rem;
+            }
+            
+            .question-text {
+                font-size: 1.25rem;
+            }
+            
+            .stage-legend {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Six Stages Neuro-Balance Assessment</h1>
+            <p class="subtitle">Discover your TCM pattern and corresponding B vitamin-neurotransmitter imbalances through this comprehensive diagnostic questionnaire</p>
+            
+            <div class="stage-legend">
+                <div class="stage-item">
+                    <div class="stage-dot" style="background: var(--taiyang)"></div>
+                    <span>Taiyang (B1)</span>
+                </div>
+                <div class="stage-item">
+                    <div class="stage-dot" style="background: var(--shaoyang)"></div>
+                    <span>Shaoyang (B2)</span>
+                </div>
+                <div class="stage-item">
+                    <div class="stage-dot" style="background: var(--yangming)"></div>
+                    <span>Yangming (B3)</span>
+                </div>
+                <div class="stage-item">
+                    <div class="stage-dot" style="background: var(--taiyin)"></div>
+                    <span>Taiyin (B5)</span>
+                </div>
+                <div class="stage-item">
+                    <div class="stage-dot" style="background: var(--shaoyin)"></div>
+                    <span>Shaoyin (B9/B12)</span>
+                </div>
+                <div class="stage-item">
+                    <div class="stage-dot" style="background: var(--jueyin)"></div>
+                    <span>Jueyin (B6)</span>
+                </div>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </header>
+
+        <div id="questionnaire">
+            <!-- Questions will be injected here -->
+        </div>
+
+        <div class="results-container" id="results">
+            <div class="results-header">
+                <h2 style="font-family: 'Crimson Text', serif; font-size: 2rem; margin-bottom: 0.5rem;">Your Neuro-Balance Profile</h2>
+                <p style="color: var(--text-secondary);">Based on your responses, here is your personalized assessment</p>
+            </div>
+
+            <div class="chart-container">
+                <div class="stage-bars" id="stageBars"></div>
+            </div>
+
+            <div class="recommendations" id="recommendations"></div>
+
+            <div class="summary-box">
+                <h3 class="summary-title">Clinical Interpretation</h3>
+                <p class="summary-text" id="clinicalSummary"></p>
+            </div>
+
+            <button class="restart-btn" onclick="restartAssessment()">Start New Assessment</button>
+        </div>
+    </div>
+
+    <script>
+        const stages = {
+            taiyang: { name: 'Taiyang', vitamin: 'B1', color: '#3b82f6', neuro: ['Acetylcholine', 'Glutamate'] },
+            shaoyang: { name: 'Shaoyang', vitamin: 'B2', color: '#f59e0b', neuro: ['Dopamine', 'Serotonin', 'Norepinephrine'] },
+            yangming: { name: 'Yangming', vitamin: 'B3', color: '#ef4444', neuro: ['Serotonin', 'NAD⁺ Status'] },
+            taiyin: { name: 'Taiyin', vitamin: 'B5', color: '#10b981', neuro: ['Acetylcholine', 'Parasympathetic'] },
+            shaoyin: { name: 'Shaoyin', vitamin: 'B9/B12', color: '#8b5cf6', neuro: ['Methylated Monoamines', 'Epinephrine'] },
+            jueyin: { name: 'Jueyin', vitamin: 'B6', color: '#ec4899', neuro: ['GABA', 'Glycine'] }
+        };
+
+        const questions = [
+            // TAIYANG (B1) - Acetylcholine/Glutamate - Exterior/Sensory
+            {
+                stage: 'taiyang',
+                text: "Do you experience frequent muscle weakness, fatigue, or difficulty with physical coordination?",
+                options: [
+                    { text: "No issues", score: 0 },
+                    { text: "Mild occasional weakness", score: 1 },
+                    { text: "Regular fatigue with exertion", score: 2 },
+                    { text: "Significant weakness affecting daily activities", score: 3 }
+                ]
+            },
+            {
+                stage: 'taiyang',
+                text: "Do you have sensitivity to external stimuli (light, sound, temperature changes) or frequent headaches?",
+                options: [
+                    { text: "Not sensitive", score: 0 },
+                    { text: "Mild sensitivity", score: 1 },
+                    { text: "Moderate - avoid bright lights/loud sounds", score: 2 },
+                    { text: "Severe - must wear sunglasses/ear protection", score: 3 }
+                ]
+            },
+            {
+                stage: 'taiyang',
+                text: "Do you experience memory lapses, confusion, or difficulty concentrating?",
+                options: [
+                    { text: "Sharp memory", score: 0 },
+                    { text: "Occasional forgetfulness", score: 1 },
+                    { text: "Regular difficulty focusing", score: 2 },
+                    { text: "Significant cognitive impairment", score: 3 }
+                ]
+            },
+
+            // SHAOYANG (B2) - Dopamine/Serotonin/NE - Pivot/Mood
+            {
+                stage: 'shaoyang',
+                text: "Do you experience alternating states of energy and fatigue, or mood swings?",
+                options: [
+                    { text: "Stable energy and mood", score: 0 },
+                    { text: "Occasional fluctuations", score: 1 },
+                    { text: "Regular ups and downs", score: 2 },
+                    { text: "Rapid cycling between high and low states", score: 3 }
+                ]
+            },
+            {
+                stage: 'shaoyang',
+                text: "Do you have difficulty making decisions or feel 'stuck' between options?",
+                options: [
+                    { text: "Decisive", score: 0 },
+                    { text: "Occasional indecision", score: 1 },
+                    { text: "Frequently paralyzed by choices", score: 2 },
+                    { text: "Cannot make even simple decisions", score: 3 }
+                ]
+            },
+            {
+                stage: 'shaoyang',
+                text: "Do you experience irritability, frustration, or feeling emotionally 'blocked'?",
+                options: [
+                    { text: "Even-tempered", score: 0 },
+                    { text: "Mild irritability", score: 1 },
+                    { text: "Regular frustration/anger", score: 2 },
+                    { text: "Constant irritability or rage", score: 3 }
+                ]
+            },
+
+            // YANGMING (B3) - Serotonin/Metabolic Heat
+            {
+                stage: 'yangming',
+                text: "Do you experience episodes of intense internal heat, sweating, or feeling 'wired' and agitated?",
+                options: [
+                    { text: "No heat symptoms", score: 0 },
+                    { text: "Occasional warmth/flushing", score: 1 },
+                    { text: "Regular episodes of heat/agitation", score: 2 },
+                    { text: "Constant internal heat, night sweats", score: 3 }
+                ]
+            },
+            {
+                stage: 'yangming',
+                text: "Do you have skin issues (dermatitis, rashes), digestive inflammation, or 'leaky gut' symptoms?",
+                options: [
+                    { text: "Clear skin, good digestion", score: 0 },
+                    { text: "Mild occasional issues", score: 1 },
+                    { text: "Chronic skin or GI inflammation", score: 2 },
+                    { text: "Severe dermatitis or inflammatory bowel issues", score: 3 }
+                ]
+            },
+            {
+                stage: 'yangming',
+                text: "Do you experience insomnia with mental agitation or racing thoughts at night?",
+                options: [
+                    { text: "Sleep well", score: 0 },
+                    { text: "Occasional difficulty", score: 1 },
+                    { text: "Regular insomnia with racing mind", score: 2 },
+                    { text: "Severe sleep deprivation from agitation", score: 3 }
+                ]
+            },
+
+            // TAIYIN (B5) - Acetylcholine/Parasympathetic/Digestion
+            {
+                stage: 'taiyin',
+                text: "Do you experience digestive issues (bloating, loose stools, poor appetite) or spleen-type fatigue?",
+                options: [
+                    { text: "Strong digestion", score: 0 },
+                    { text: "Occasional bloating", score: 1 },
+                    { text: "Chronic digestive weakness", score: 2 },
+                    { text: "Severe malabsorption, chronic diarrhea", score: 3 }
+                ]
+            },
+            {
+                stage: 'taiyin',
+                text: "Do you feel cold easily, especially in hands/feet, with low energy and desire to rest?",
+                options: [
+                    { text: "Good temperature regulation", score: 0 },
+                    { text: "Mild cold sensitivity", score: 1 },
+                    { text: "Often cold, low vitality", score: 2 },
+                    { text: "Constantly cold, exhausted, withdrawn", score: 3 }
+                ]
+            },
+            {
+                stage: 'taiyin',
+                text: "Do you have respiratory issues, chronic cough, or lung congestion?",
+                options: [
+                    { text: "Clear lungs", score: 0 },
+                    { text: "Occasional congestion", score: 1 },
+                    { text: "Chronic respiratory issues", score: 2 },
+                    { text: "Severe asthma or chronic lung disease", score: 3 }
+                ]
+            },
+
+            // SHAOYIN (B9/B12) - Methylation/Deep Vitality
+            {
+                stage: 'shaoyin',
+                text: "Do you experience deep exhaustion that sleep doesn't resolve, or feeling 'empty'?",
+                options: [
+                    { text: "Refreshed by rest", score: 0 },
+                    { text: "Sometimes tired despite sleep", score: 1 },
+                    { text: "Chronic unrefreshing sleep", score: 2 },
+                    { text: "Bone-deep fatigue, never rested", score: 3 }
+                ]
+            },
+            {
+                stage: 'shaoyin',
+                text: "Do you have memory issues, depression, or feeling emotionally 'flat' or disconnected?",
+                options: [
+                    { text: "Emotionally present, good memory", score: 0 },
+                    { text: "Mild low mood", score: 1 },
+                    { text: "Chronic depression, memory lapses", score: 2 },
+                    { text: "Severe depression, dementia-like symptoms", score: 3 }
+                ]
+            },
+            {
+                stage: 'shaoyin',
+                text: "Do you experience nerve pain, numbness/tingling, or difficulty with balance?",
+                options: [
+                    { text: "No neurological symptoms", score: 0 },
+                    { text: "Occasional tingling", score: 1 },
+                    { text: "Regular neuropathy", score: 2 },
+                    { text: "Severe peripheral neuropathy, ataxia", score: 3 }
+                ]
+            },
+
+            // JUEYIN (B6) - GABA/Glycine/Inhibition
+            {
+                stage: 'jueyin',
+                text: "Do you experience anxiety, panic attacks, or feeling 'wired but tired'?",
+                options: [
+                    { text: "Calm and grounded", score: 0 },
+                    { text: "Mild anxiety", score: 1 },
+                    { text: "Regular panic or anxiety", score: 2 },
+                    { text: "Severe panic disorder, constant anxiety", score: 3 }
+                ]
+            },
+            {
+                stage: 'jueyin',
+                text: "Do you have muscle spasms, tremors, tics, or 'internal wind' symptoms?",
+                options: [
+                    { text: "Steady muscles", score: 0 },
+                    { text: "Occasional eye twitch or cramp", score: 1 },
+                    { text: "Regular tremors or spasms", score: 2 },
+                    { text: "Severe tremor, seizures, or convulsions", score: 3 }
+                ]
+            },
+            {
+                stage: 'jueyin',
+                text: "Do you experience extreme mood instability, 'hot and cold' emotionally, or feeling at 'breaking point'?",
+                options: [
+                    { text: "Emotionally stable", score: 0 },
+                    { text: "Occasional instability", score: 1 },
+                    { text: "Regular extreme mood swings", score: 2 },
+                    { text: "Feel near collapse, uncontrollable emotions", score: 3 }
+                ]
+            }
+        ];
+
+        let currentQuestion = 0;
+        let scores = {
+            taiyang: 0,
+            shaoyang: 0,
+            yangming: 0,
+            taiyin: 0,
+            shaoyin: 0,
+            jueyin: 0
+        };
+        let maxScores = {
+            taiyang: 9,
+            shaoyang: 9,
+            yangming: 9,
+            taiyin: 9,
+            shaoyin: 9,
+            jueyin: 9
+        };
+
+        function init() {
+            renderQuestion();
+            updateProgress();
+        }
+
+        function renderQuestion() {
+            const container = document.getElementById('questionnaire');
+            const q = questions[currentQuestion];
+            const stage = stages[q.stage];
+            
+            let html = `
+                <div class="question-card active" id="q${currentQuestion}">
+                    <div class="question-number">Question ${currentQuestion + 1} of ${questions.length}</div>
+                    <div class="stage-tag" style="background: ${stage.color}20; color: ${stage.color}; border: 1px solid ${stage.color}40;">
+                        ${stage.name} Stage • ${stage.vitamin}
+                    </div>
+                    <h3 class="question-text">${q.text}</h3>
+                    <div class="options">
+            `;
+            
+            q.options.forEach((opt, idx) => {
+                html += `
+                    <div class="option" onclick="selectOption(${idx}, ${opt.score})">
+                        <div class="option-marker">${String.fromCharCode(65 + idx)}</div>
+                        <div>${opt.text}</div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                    </div>
+                    <div class="nav-buttons">
+                        <button class="btn-secondary" onclick="prevQuestion()" ${currentQuestion === 0 ? 'style="visibility:hidden"' : ''}>Previous</button>
+                        <button class="btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>Next</button>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        function selectOption(idx, score) {
+            const card = document.querySelector('.question-card.active');
+            const options = card.querySelectorAll('.option');
+            
+            options.forEach((opt, i) => {
+                opt.classList.toggle('selected', i === idx);
+            });
+            
+            // Store the score temporarily
+            card.dataset.score = score;
+            card.dataset.selected = idx;
+            
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function nextQuestion() {
+            const card = document.querySelector('.question-card.active');
+            const score = parseInt(card.dataset.score) || 0;
+            const stage = questions[currentQuestion].stage;
+            
+            scores[stage] += score;
+            
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+                updateProgress();
+            } else {
+                showResults();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                // Subtract previous score
+                const prevStage = questions[currentQuestion - 1].stage;
+                const prevCard = document.getElementById(`q${currentQuestion - 1}`);
+                if (prevCard && prevCard.dataset.score) {
+                    scores[prevStage] -= parseInt(prevCard.dataset.score);
+                }
+                
+                currentQuestion--;
+                renderQuestion();
+                updateProgress();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function showResults() {
+            document.getElementById('questionnaire').style.display = 'none';
+            document.getElementById('results').style.display = 'block';
+            document.querySelector('.progress-bar').style.display = 'none';
+            
+            // Calculate percentages
+            const percentages = {};
+            for (let stage in scores) {
+                percentages[stage] = Math.round((scores[stage] / maxScores[stage]) * 100);
+            }
+            
+            // Sort stages by score
+            const sortedStages = Object.keys(percentages).sort((a, b) => percentages[b] - percentages[a]);
+            
+            renderChart(percentages, sortedStages);
+            renderRecommendations(sortedStages, percentages);
+            renderSummary(sortedStages, percentages);
+            
+            window.scrollTo(0, 0);
+        }
+
+        function renderChart(percentages, sortedStages) {
+            const container = document.getElementById('stageBars');
+            let html = '';
+            
+            sortedStages.forEach(stage => {
+                const info = stages[stage];
+                const pct = percentages[stage];
+                let color = info.color;
+                
+                html += `
+                    <div class="stage-bar-item">
+                        <div class="stage-bar-header">
+                            <div class="stage-name">
+                                <div class="stage-dot" style="background: ${color}"></div>
+                                <span>${info.name} <small style="color: var(--text-secondary); font-weight: 400;">(${info.vitamin})</small></span>
+                            </div>
+                            <div class="stage-score" style="color: ${color}">${pct}%</div>
+                        </div>
+                        <div class="bar-bg">
+                            <div class="bar-fill" style="width: ${pct}%; background: ${color};"></div>
+                        </div>
+                        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                            ${info.neuro.join(' • ')}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function renderRecommendations(sortedStages, percentages) {
+            const container = document.getElementById('recommendations');
+            let html = '<h3 style="font-family: Crimson Text, serif; font-size: 1.5rem; margin-bottom: 1rem;">Priority Recommendations</h3>';
+            
+            // Top 3 priorities
+            const top3 = sortedStages.slice(0, 3);
+            
+            top3.forEach((stage, idx) => {
+                const info = stages[stage];
+                const pct = percentages[stage];
+                const priority = idx === 0 ? 1 : idx === 1 ? 2 : 3;
+                
+                let dosage, timing, cofactors, symptoms;
+                
+                switch(stage) {
+                    case 'taiyang':
+                        dosage = "B1 (Thiamine) 100-300mg daily";
+                        timing = "Morning with food";
+                        cofactors = "Magnesium, Alpha-lipoic acid";
+                        symptoms = "Fatigue, sensory sensitivity, cognitive fog";
+                        break;
+                    case 'shaoyang':
+                        dosage = "B2 (Riboflavin) 100-400mg daily";
+                        timing = "Morning (may cause bright yellow urine)";
+                        cofactors = "B3, B6, Molybdenum";
+                        symptoms = "Mood swings, indecision, irritability, migraines";
+                        break;
+                    case 'yangming':
+                        dosage = "B3 (Niacin) 50-500mg daily (start low)";
+                        timing = "With meals to prevent flushing";
+                        cofactors = "Chromium, Zinc, Tryptophan";
+                        symptoms = "Internal heat, skin issues, insomnia, agitation";
+                        break;
+                    case 'taiyin':
+                        dosage = "B5 (Pantothenic Acid) 250-1000mg daily";
+                        timing = "With meals, divided doses";
+                        cofactors = "Biotin, Vitamin C, Choline";
+                        symptoms = "Digestive weakness, cold limbs, fatigue";
+                        break;
+                    case 'shaoyin':
+                        dosage = "Methylated B9 (5-MTHF) 400-1000mcg + B12 (Methylcobalamin) 1000-5000mcg";
+                        timing = "Morning (energizing)";
+                        cofactors = "TMG, Zinc, Magnesium, B6";
+                        symptoms = "Deep fatigue, depression, neuropathy, memory loss";
+                        break;
+                    case 'jueyin':
+                        dosage = "B6 (P5P form) 50-100mg daily";
+                        timing = "Evening (supports GABA)";
+                        cofactors = "Magnesium, Zinc, B2";
+                        symptoms = "Anxiety, tremors, seizures, mood instability";
+                        break;
+                }
+                
+                html += `
+                    <div class="rec-card priority-${priority}">
+                        <div class="rec-header">
+                            <div>
+                                <div class="rec-title" style="color: ${info.color}">
+                                    ${idx + 1}. ${info.name} Stage Support
+                                </div>
+                                <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                    Imbalance: ${pct}% • Targets: ${info.neuro.join(', ')}
+                                </div>
+                            </div>
+                            <div class="rec-priority">Priority ${priority}</div>
+                        </div>
+                        
+                        <div class="rec-content">
+                            <div class="rec-item">
+                                <div class="rec-icon" style="background: ${info.color}20; color: ${info.color}">💊</div>
+                                <div class="rec-details">
+                                    <h4>Supplement Protocol</h4>
+                                    <p>${dosage}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="rec-item">
+                                <div class="rec-icon" style="background: ${info.color}20; color: ${info.color}">🕐</div>
+                                <div class="rec-details">
+                                    <h4>Timing</h4>
+                                    <p>${timing}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="rec-item">
+                                <div class="rec-icon" style="background: ${info.color}20; color: ${info.color}">⚗️</div>
+                                <div class="rec-details">
+                                    <h4>Cofactors Needed</h4>
+                                    <p>${cofactors}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="rec-item">
+                                <div class="rec-icon" style="background: ${info.color}20; color: ${info.color}">🔍</div>
+                                <div class="rec-details">
+                                    <h4>Key Symptoms Addressed</h4>
+                                    <p>${symptoms}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="neurotransmitter-list">
+                            ${info.neuro.map(n => `<span class="neuro-tag">${n}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function renderSummary(sortedStages, percentages) {
+            const primary = sortedStages[0];
+            const secondary = sortedStages[1];
+            const primaryInfo = stages[primary];
+            const secondaryInfo = stages[secondary];
+            
+            let interpretation = '';
+            
+            if (percentages[primary] > 70) {
+                interpretation = `Your assessment reveals a severe ${primaryInfo.name} stage imbalance (${percentages[primary]}%), indicating significant disruption in ${primaryInfo.neuro.join(' and ')} pathways. This suggests ${primary === 'taiyang' ? 'peripheral nervous system compromise and sensory-motor integration issues' : primary === 'shaoyang' ? 'monoamine dysregulation affecting mood stability and decision-making capacity' : primary === 'yangming' ? 'metabolic overdrive with serotonin depletion and inflammatory processes' : primary === 'taiyin' ? 'parasympathetic failure and digestive-neurotransmitter axis disruption' : primary === 'shaoyin' ? 'deep methylation deficits affecting emotional memory and vital energy reserves' : 'GABAergic collapse with loss of inhibitory control and potential for seizures or extreme anxiety'}. `;
+            } else if (percentages[primary] > 40) {
+                interpretation = `You show moderate ${primaryInfo.name} stage involvement (${percentages[primary]}%), suggesting emerging dysfunction in ${primaryInfo.neuro.join(' and ')} signaling. This pattern often precedes more severe neurological symptoms if left unaddressed. `;
+            } else {
+                interpretation = `Your ${primaryInfo.name} stage shows mild elevation (${percentages[primary]}%), representing a tendency toward ${primaryInfo.neuro[0].toLowerCase()} imbalance that may manifest under stress. `;
+            }
+            
+            interpretation += `The secondary ${secondaryInfo.name} pattern (${percentages[secondary]}%) indicates concurrent stress on ${secondaryInfo.neuro.join(' and ')} systems, creating a ${primaryInfo.name}-${secondaryInfo.name} axis disturbance. `;
+            
+            interpretation += `\n\n<strong>Therapeutic Strategy:</strong> Prioritize ${primaryInfo.vitamin} supplementation to address the primary deficit, while supporting the ${secondaryInfo.vitamin} pathway to prevent compensatory depletion. This two-pronged approach addresses both the root (ben/ root) and branch (biao/ manifestation) of your neuro-metabolic pattern. Consider working with a practitioner familiar with both TCM pattern differentiation and functional neurology for optimal dosing and monitoring.`;
+            
+            document.getElementById('clinicalSummary').innerHTML = interpretation;
+        }
+
+        function restartAssessment() {
+            currentQuestion = 0;
+            scores = {
+                taiyang: 0,
+                shaoyang: 0,
+                yangming: 0,
+                taiyin: 0,
+                shaoyin: 0,
+                jueyin: 0
+            };
+            
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('questionnaire').style.display = 'block';
+            document.querySelector('.progress-bar').style.display = 'block';
+            
+            init();
+        }
+
+        // Start the assessment
+        init();
+    </script>
+</body>
+</html>
